@@ -91,13 +91,18 @@ export function UsersPageClient() {
     usersQuery.data?.items.every((item) => selectedIds.includes(item.id));
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-2xl font-semibold">Users</h2>
-      <p className="text-sm text-zinc-600">
-        Server-side pagination, sorting, filters, bulk actions, and URL-synced state.
-      </p>
+    <section className="space-y-5">
+      <div className="rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(219,234,254,0.9),rgba(255,255,255,0.96),rgba(254,243,199,0.75))] p-5 shadow-[0_14px_50px_rgba(148,163,184,0.18)]">
+        <p className="text-[11px] font-medium tracking-[0.22em] text-sky-700 uppercase">
+          Users Control
+        </p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight">Users</h2>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-600">
+          Server-side pagination, sorting, filters, bulk actions, and URL-synced state.
+        </p>
+      </div>
 
-      <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)] md:grid-cols-2 xl:grid-cols-6">
         <input
           value={searchInput}
           onChange={(event) => {
@@ -187,7 +192,7 @@ export function UsersPageClient() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-white p-4">
+      <div className="flex flex-wrap items-center gap-2 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
         <span className="text-sm text-zinc-600">Selected: {selectedIds.length}</span>
         <button
           type="button"
@@ -213,9 +218,9 @@ export function UsersPageClient() {
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
+      <div className="overflow-hidden rounded-[24px] border border-white/70 bg-white/90 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
         <table className="w-full table-fixed border-collapse">
-          <thead className="bg-zinc-100 text-left text-xs tracking-wide text-zinc-600 uppercase">
+          <thead className="bg-zinc-100/85 text-left text-xs tracking-wide text-zinc-600 uppercase">
             <tr>
               <th className="px-4 py-3">
                 <input
@@ -299,7 +304,7 @@ export function UsersPageClient() {
         ) : null}
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm">
+      <div className="flex items-center justify-between rounded-[22px] border border-white/70 bg-white/90 px-4 py-3 text-sm shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
         <p className="text-zinc-600">
           {usersQuery.data ? `Total: ${usersQuery.data.total} users` : 'Total: ...'}
         </p>

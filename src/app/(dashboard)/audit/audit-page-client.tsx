@@ -60,11 +60,18 @@ export function AuditPageClient() {
   const events = auditQuery.data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-2xl font-semibold">Audit Log</h2>
-      <p className="text-sm text-zinc-600">Infinite feed with filters and CSV export.</p>
+    <section className="space-y-5">
+      <div className="rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(254,215,170,0.75),rgba(255,255,255,0.96),rgba(191,219,254,0.8))] p-5 shadow-[0_14px_50px_rgba(148,163,184,0.18)]">
+        <p className="text-[11px] font-medium tracking-[0.22em] text-orange-700 uppercase">
+          Audit Feed
+        </p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight">Audit Log</h2>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-600">
+          Infinite feed with filters and CSV export.
+        </p>
+      </div>
 
-      <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 md:grid-cols-5">
+      <div className="grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)] md:grid-cols-5">
         <input
           aria-label="User ID filter"
           value={filters.userId}
@@ -132,7 +139,10 @@ export function AuditPageClient() {
         {events.map((event) => {
           const isExpanded = Boolean(expanded[event.id]);
           return (
-            <article key={event.id} className="rounded-lg border border-zinc-200 bg-white p-3">
+            <article
+              key={event.id}
+              className="rounded-[20px] border border-white/70 bg-white/90 p-3 shadow-[0_8px_28px_rgba(148,163,184,0.1)]"
+            >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="text-sm font-medium">{event.action}</p>

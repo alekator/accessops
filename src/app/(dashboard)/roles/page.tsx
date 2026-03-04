@@ -160,12 +160,18 @@ export default function RolesPage() {
 
   return (
     <section className="space-y-5">
-      <h2 className="text-2xl font-semibold">Roles & Permissions</h2>
-      <p className="text-sm text-zinc-600">
-        Managers can view this page in read-only mode. Saving policy updates is restricted to Admin.
-      </p>
+      <div className="rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(224,231,255,0.9),rgba(255,255,255,0.96),rgba(209,250,229,0.75))] p-5 shadow-[0_14px_50px_rgba(148,163,184,0.18)]">
+        <p className="text-[11px] font-medium tracking-[0.22em] text-indigo-700 uppercase">
+          Policy Matrix
+        </p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight">Roles & Permissions</h2>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-600">
+          Managers can view this page in read-only mode. Saving policy updates is restricted to
+          Admin.
+        </p>
+      </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-4">
+      <div className="rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
         <p className="text-sm text-zinc-700">
           Current role: <strong>{role}</strong>
         </p>
@@ -178,7 +184,7 @@ export default function RolesPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <div className="space-y-4 rounded-lg border border-zinc-200 bg-white p-4">
+        <div className="space-y-4 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="role-select" className="text-sm text-zinc-600">
               Selected role:
@@ -310,7 +316,7 @@ export default function RolesPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-lg border border-zinc-200 bg-white p-4">
+          <div className="rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
             <h3 className="text-sm font-semibold">Effective permissions</h3>
             <p className="mt-1 text-xs text-zinc-500">
               Enabled: {effectiveSummary.totalEnabled}/{effectiveSummary.totalPossible}
@@ -324,7 +330,7 @@ export default function RolesPage() {
             </ul>
           </div>
 
-          <div className="rounded-lg border border-zinc-200 bg-white p-4">
+          <div className="rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
             <h3 className="text-sm font-semibold">Diff since last saved</h3>
             {diff.length === 0 ? (
               <p className="mt-2 text-sm text-zinc-500">No unsaved permission changes.</p>
@@ -339,7 +345,7 @@ export default function RolesPage() {
             )}
           </div>
 
-          <div className="rounded-lg border border-zinc-200 bg-white p-4">
+          <div className="rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
             <h3 className="text-sm font-semibold">Import JSON policy</h3>
             <textarea
               aria-label="Import JSON policy"
