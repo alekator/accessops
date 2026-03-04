@@ -79,7 +79,7 @@ pnpm build
 
 ## Mocking Model
 
-- REST endpoints are provided by MSW handlers (`/api/users`, `/api/roles`, `/api/audit`, etc.).
+- REST endpoints are versioned and provided by MSW handlers (`/api/v1/users`, `/api/v1/roles`, `/api/v1/audit`, etc.).
 - Data is served from deterministic in-memory fixtures (`users: 200`, `audit events: 500+`, `roles: 3`).
 - Real-time updates are simulated via client event-bus (`mocks/ws`) with:
   - timed auto-events in dev
@@ -118,6 +118,7 @@ GitHub Actions pipeline (`.github/workflows/ci.yml`) runs:
 - typecheck
 - unit tests
 - build
+- bundle budget check
 - Playwright E2E
 
 ## Roadmap

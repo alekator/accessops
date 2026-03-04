@@ -11,7 +11,7 @@ function compareValues(a: string, b: string, order: SortOrder) {
 }
 
 export const usersHandlers = [
-  http.get('/api/users/check-email', async ({ request }) => {
+  http.get('/api/v1/users/check-email', async ({ request }) => {
     const url = new URL(request.url);
     const email = url.searchParams.get('email');
     const excludeId = url.searchParams.get('excludeId') ?? undefined;
@@ -32,7 +32,7 @@ export const usersHandlers = [
       isUnique: isEmailUnique(email, excludeId),
     });
   }),
-  http.get('/api/users', async ({ request }) => {
+  http.get('/api/v1/users', async ({ request }) => {
     const url = new URL(request.url);
 
     const page = Math.max(1, Number(url.searchParams.get('page') ?? 1) || 1);
@@ -74,7 +74,7 @@ export const usersHandlers = [
       totalPages,
     });
   }),
-  http.get('/api/users/:id', async ({ params }) => {
+  http.get('/api/v1/users/:id', async ({ params }) => {
     const id = String(params.id);
     const user = getUserById(id);
 
@@ -92,7 +92,7 @@ export const usersHandlers = [
 
     return HttpResponse.json(user);
   }),
-  http.patch('/api/users/:id', async ({ params, request }) => {
+  http.patch('/api/v1/users/:id', async ({ params, request }) => {
     const id = String(params.id);
     const body = (await request.json()) as Partial<{
       name: string;

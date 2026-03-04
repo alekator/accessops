@@ -39,6 +39,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Bundle budget
+        run: pnpm check:bundle
+
   e2e:
     runs-on: ubuntu-latest
     steps:

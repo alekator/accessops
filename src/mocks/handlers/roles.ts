@@ -3,13 +3,13 @@ import { getRoleById, listRoles, updateRolePolicyById } from '@/mocks/db/roles-d
 import { http, HttpResponse } from 'msw';
 
 export const rolesHandlers = [
-  http.get('/api/roles', async () => {
+  http.get('/api/v1/roles', async () => {
     await new Promise((resolve) => setTimeout(resolve, 250));
     return HttpResponse.json({
       items: listRoles(),
     });
   }),
-  http.patch('/api/roles/:id', async ({ params, request }) => {
+  http.patch('/api/v1/roles/:id', async ({ params, request }) => {
     const id = String(params.id);
     const payload = (await request.json()) as { policy?: unknown };
 

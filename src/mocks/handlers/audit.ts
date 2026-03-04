@@ -3,7 +3,7 @@ import { queryAuditEvents } from '@/mocks/db/audit-db';
 import { http, HttpResponse } from 'msw';
 
 export const auditHandlers = [
-  http.get('/api/audit', async ({ request }) => {
+  http.get('/api/v1/audit', async ({ request }) => {
     const url = new URL(request.url);
     const cursor = url.searchParams.get('cursor');
     const userId = url.searchParams.get('userId') ?? undefined;
