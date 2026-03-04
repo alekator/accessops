@@ -3,6 +3,7 @@
 import { useAuth } from '@/features/auth/ui/auth-provider';
 import { emitRandomRealtimeEvent } from '@/mocks/ws/event-bus';
 import { ROLES, type Role } from '@/shared/types/auth';
+import { OfflineBanner } from '@/widgets/offline-banner/ui/offline-banner';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -88,6 +89,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               </button>
             </div>
           </header>
+          <OfflineBanner />
 
           <main className="flex-1 p-6">{children}</main>
         </div>

@@ -2,8 +2,10 @@
 
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/features/auth/ui/auth-provider';
+import { ConnectivityToastsProvider } from '@/features/connectivity/ui/connectivity-toasts-provider';
 import { RealtimeEventsProvider } from '@/features/realtime/ui/realtime-events-provider';
 import { initMocks } from '@/mocks/init';
+import { shouldRetryQuery } from '@/shared/lib/retry-policy';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -15,6 +17,11 @@ export function Providers({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 60 * 1000,
             refetchOnWindowFocus: false,
+            retry: shouldRetryQuery,
+            retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+          },
+          mutations: {
+            retry: false,
           },
         },
       }),
@@ -33,12 +40,14 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RealtimeEventsProvider>
-        <AuthProvider>
-          {isMocksReady ? children : null}
-          <Toaster richColors position="top-right" />
-        </AuthProvider>
-      </RealtimeEventsProvider>
+      <ConnectivityToastsProvider>
+        <RealtimeEventsProvider>
+          <AuthProvider>
+            {isMocksReady ? children : null}
+            <Toaster richColors position="top-right" />
+          </AuthProvider>
+        </RealtimeEventsProvider>
+      </ConnectivityToastsProvider>
     </QueryClientProvider>
   );
 }
