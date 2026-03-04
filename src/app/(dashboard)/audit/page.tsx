@@ -66,14 +66,18 @@ export default function AuditPage() {
 
       <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 md:grid-cols-5">
         <input
+          aria-label="User ID filter"
           value={filters.userId}
           onChange={(event) => updateFilters({ userId: event.target.value })}
           placeholder="Filter by userId"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm md:col-span-2"
         />
         <select
+          aria-label="Action filter"
           value={filters.action}
-          onChange={(event) => updateFilters({ action: event.target.value as typeof filters.action })}
+          onChange={(event) =>
+            updateFilters({ action: event.target.value as typeof filters.action })
+          }
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
         >
           <option value="All">All actions</option>
@@ -84,12 +88,14 @@ export default function AuditPage() {
           <option value="LOGIN">LOGIN</option>
         </select>
         <input
+          aria-label="From date"
           type="date"
           value={filters.from}
           onChange={(event) => updateFilters({ from: event.target.value })}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
         />
         <input
+          aria-label="To date"
           type="date"
           value={filters.to}
           onChange={(event) => updateFilters({ to: event.target.value })}
@@ -118,7 +124,9 @@ export default function AuditPage() {
         </button>
       </div>
 
-      {auditQuery.isError ? <div className="text-sm text-red-600">Failed to load audit events.</div> : null}
+      {auditQuery.isError ? (
+        <div className="text-sm text-red-600">Failed to load audit events.</div>
+      ) : null}
 
       <div className="space-y-2">
         {events.map((event) => {
@@ -157,7 +165,9 @@ export default function AuditPage() {
       </div>
 
       <div ref={loadMoreRef} />
-      {auditQuery.isFetchingNextPage ? <p className="text-sm text-zinc-500">Loading more...</p> : null}
+      {auditQuery.isFetchingNextPage ? (
+        <p className="text-sm text-zinc-500">Loading more...</p>
+      ) : null}
       {!auditQuery.hasNextPage && events.length > 0 ? (
         <p className="text-sm text-zinc-500">No more events.</p>
       ) : null}

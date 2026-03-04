@@ -2,6 +2,7 @@ import { type AuditAction } from '@/entities/audit/model/schemas';
 import { createAuditFixture } from '@/mocks/fixtures/audit';
 
 const auditDb = createAuditFixture(500);
+let auditCounter = 500;
 
 type AuditQuery = {
   cursor: string | null;
@@ -34,10 +35,31 @@ export function queryAuditEvents(query: AuditQuery) {
   }
 
   const items = filtered.slice(0, limit);
-  const nextCursor = filtered.length > limit ? items[items.length - 1]?.id ?? null : null;
+  const nextCursor = filtered.length > limit ? (items[items.length - 1]?.id ?? null) : null;
 
   return {
     items,
     nextCursor,
   };
+}
+
+type AppendAuditInput = {
+  userId: string;
+  action: AuditAction;
+  message: string;
+  details: Record<string, string | number | boolean | null>;
+};
+
+export function appendAuditEvent(input: AppendAuditInput) {
+  auditCounter += 1;
+  const event = {
+    id: `audit_${auditCounter.toString().padStart(4, '0')}`,
+    timestamp: new Date().toISOString(),
+    userId: input.userId,
+    action: input.action,
+    message: input.message,
+    details: input.details,
+  };
+  auditDb.unshift(event);
+  return event;
 }

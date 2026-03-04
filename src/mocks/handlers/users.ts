@@ -1,3 +1,4 @@
+import { appendAuditEvent } from '@/mocks/db/audit-db';
 import { getUserById, isEmailUnique, listUsers, updateUserById } from '@/mocks/db/users-db';
 import { http, HttpResponse } from 'msw';
 
@@ -103,7 +104,9 @@ export const usersHandlers = [
 
     await new Promise((resolve) => setTimeout(resolve, 350));
 
-    const shouldFail = Math.random() < 0.1 || request.headers.get('x-force-error') === '1';
+    const shouldFail =
+      (process.env.E2E !== '1' && Math.random() < 0.1) ||
+      request.headers.get('x-force-error') === '1';
     if (shouldFail) {
       return HttpResponse.json(
         {
@@ -134,6 +137,17 @@ export const usersHandlers = [
         { status: 404 },
       );
     }
+
+    appendAuditEvent({
+      userId: updated.id,
+      action: 'USER_UPDATED',
+      message: `USER_UPDATED by ${updated.email}`,
+      details: {
+        entityId: updated.id,
+        email: updated.email,
+        status: updated.status,
+      },
+    });
 
     return HttpResponse.json(updated);
   }),

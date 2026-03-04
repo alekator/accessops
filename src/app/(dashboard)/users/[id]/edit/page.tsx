@@ -10,7 +10,10 @@ import { toast } from 'sonner';
 import { checkEmailUnique } from '@/entities/user/api/check-email-unique';
 import { getUser } from '@/entities/user/api/get-user';
 import { updateUser } from '@/entities/user/api/update-user';
-import { EditUserFormSchema, type EditUserFormValues } from '@/entities/user/model/edit-user-schema';
+import {
+  EditUserFormSchema,
+  type EditUserFormValues,
+} from '@/entities/user/model/edit-user-schema';
 import { applyOptimisticUserUpdate } from '@/features/users/edit-user/model/optimistic-update';
 import { useUnsavedChangesGuard } from '@/shared/lib/use-unsaved-changes-guard';
 
@@ -112,7 +115,10 @@ export default function EditUserPage() {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Edit User</h2>
-        <Link href={`/users/${userId}`} className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100">
+        <Link
+          href={`/users/${userId}`}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100"
+        >
           Back to details
         </Link>
       </div>
@@ -122,11 +128,16 @@ export default function EditUserPage() {
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
       >
         <FormField label="Name" error={form.formState.errors.name?.message}>
-          <input className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" {...form.register('name')} />
+          <input
+            aria-label="Name"
+            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            {...form.register('name')}
+          />
         </FormField>
 
         <FormField label="Email" error={form.formState.errors.email?.message}>
           <input
+            aria-label="Email"
             className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
             {...form.register('email', {
               validate: async (value) => {
@@ -142,7 +153,11 @@ export default function EditUserPage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <FormField label="Role" error={form.formState.errors.role?.message}>
-            <select className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" {...form.register('role')}>
+            <select
+              aria-label="Role"
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              {...form.register('role')}
+            >
               <option value="Admin">Admin</option>
               <option value="Manager">Manager</option>
               <option value="Viewer">Viewer</option>
@@ -150,7 +165,11 @@ export default function EditUserPage() {
           </FormField>
 
           <FormField label="Status" error={form.formState.errors.status?.message}>
-            <select className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" {...form.register('status')}>
+            <select
+              aria-label="Status"
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              {...form.register('status')}
+            >
               <option value="Active">Active</option>
               <option value="Suspended">Suspended</option>
               <option value="Invited">Invited</option>
@@ -161,6 +180,7 @@ export default function EditUserPage() {
         {status === 'Suspended' ? (
           <FormField label="Suspend reason" error={form.formState.errors.suspendReason?.message}>
             <textarea
+              aria-label="Suspend reason"
               className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
               rows={3}
               {...form.register('suspendReason')}
@@ -182,7 +202,9 @@ export default function EditUserPage() {
           >
             {mutation.isPending ? 'Saving...' : 'Save changes'}
           </button>
-          <span className="text-xs text-zinc-500">Optimistic update with rollback on server failure is enabled.</span>
+          <span className="text-xs text-zinc-500">
+            Optimistic update with rollback on server failure is enabled.
+          </span>
         </div>
       </form>
     </section>

@@ -80,6 +80,8 @@ http://localhost:3000
 pnpm lint
 pnpm typecheck
 pnpm format
+pnpm test
+pnpm e2e
 ```
 
 ---
