@@ -3,6 +3,7 @@
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/features/auth/ui/auth-provider';
 import { ConnectivityToastsProvider } from '@/features/connectivity/ui/connectivity-toasts-provider';
+import { WebVitalsObserver } from '@/features/observability/ui/web-vitals-observer';
 import { RealtimeEventsProvider } from '@/features/realtime/ui/realtime-events-provider';
 import { initMocks } from '@/mocks/init';
 import { shouldRetryQuery } from '@/shared/lib/retry-policy';
@@ -44,6 +45,7 @@ export function Providers({ children }: { children: ReactNode }) {
         <RealtimeEventsProvider>
           <AuthProvider>
             {isMocksReady ? children : null}
+            <WebVitalsObserver />
             <Toaster richColors position="top-right" />
           </AuthProvider>
         </RealtimeEventsProvider>

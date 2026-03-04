@@ -3,6 +3,7 @@
 import { getRoles } from '@/entities/role/api/get-roles';
 import { updateRolePolicy } from '@/entities/role/api/update-role-policy';
 import { PermissionPolicySchema, type PermissionPolicy } from '@/entities/role/model/schemas';
+import { logInfo } from '@/features/observability/model/client-logger';
 import { useAuth } from '@/features/auth/ui/auth-provider';
 import {
   PERMISSION_ACTIONS,
@@ -34,28 +35,32 @@ export default function RolesPage() {
   const activeRoleId = selectedRoleId ?? rolesQuery.data?.items[0]?.id ?? null;
   const activeRole = rolesQuery.data?.items.find((item) => item.id === activeRoleId) ?? null;
   const basePolicy = activeRole?.policy ?? null;
-  const draftPolicy = activeRoleId && basePolicy ? draftByRole[activeRoleId] ?? basePolicy : null;
+  const draftPolicy = activeRoleId && basePolicy ? (draftByRole[activeRoleId] ?? basePolicy) : null;
   const diff = basePolicy && draftPolicy ? getPolicyDiff(basePolicy, draftPolicy) : [];
 
   const saveMutation = useMutation({
     mutationFn: (payload: { roleId: string; policy: PermissionPolicy }) =>
       updateRolePolicy(payload.roleId, payload.policy),
     onSuccess: (updatedRole) => {
-      queryClient.setQueryData(['roles'], (prev: Awaited<ReturnType<typeof getRoles>> | undefined) => {
-        if (!prev) {
-          return prev;
-        }
-        return {
-          ...prev,
-          items: prev.items.map((item) => (item.id === updatedRole.id ? updatedRole : item)),
-        };
-      });
+      queryClient.setQueryData(
+        ['roles'],
+        (prev: Awaited<ReturnType<typeof getRoles>> | undefined) => {
+          if (!prev) {
+            return prev;
+          }
+          return {
+            ...prev,
+            items: prev.items.map((item) => (item.id === updatedRole.id ? updatedRole : item)),
+          };
+        },
+      );
 
       setDraftByRole((prev) => {
         const next = { ...prev };
         delete next[updatedRole.id];
         return next;
       });
+      logInfo('role_policy_saved', { roleId: updatedRole.id, roleName: updatedRole.name });
       toast.success('Role policy saved');
     },
     onError: (error) => {
@@ -71,7 +76,9 @@ export default function RolesPage() {
       }
     : (() => {
         const byModule = PERMISSION_MODULES.map((moduleName) => {
-          const enabled = PERMISSION_ACTIONS.filter((action) => draftPolicy[moduleName][action]).length;
+          const enabled = PERMISSION_ACTIONS.filter(
+            (action) => draftPolicy[moduleName][action],
+          ).length;
           return {
             module: moduleName,
             enabled,
@@ -109,6 +116,7 @@ export default function RolesPage() {
         return;
       }
       setDraft(parsed.data);
+      logInfo('role_policy_imported', { roleId: activeRoleId });
       toast.success('Policy imported into draft');
     } catch {
       toast.error('Invalid JSON');
@@ -126,6 +134,7 @@ export default function RolesPage() {
     link.download = `${activeRole.name.toLowerCase()}-policy.json`;
     link.click();
     URL.revokeObjectURL(url);
+    logInfo('role_policy_exported', { roleId: activeRole.id, roleName: activeRole.name });
   }
 
   if (rolesQuery.isLoading) {
@@ -194,7 +203,7 @@ export default function RolesPage() {
           <div className="overflow-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-zinc-100 text-left text-xs uppercase tracking-wide text-zinc-600">
+                <tr className="bg-zinc-100 text-left text-xs tracking-wide text-zinc-600 uppercase">
                   <th className="px-3 py-2">Module</th>
                   {PERMISSION_ACTIONS.map((action) => (
                     <th key={action} className="px-3 py-2">
@@ -257,7 +266,13 @@ export default function RolesPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              disabled={!canEdit || !draftPolicy || !activeRoleId || diff.length === 0 || saveMutation.isPending}
+              disabled={
+                !canEdit ||
+                !draftPolicy ||
+                !activeRoleId ||
+                diff.length === 0 ||
+                saveMutation.isPending
+              }
               onClick={() => {
                 if (!draftPolicy || !activeRoleId) {
                   return;

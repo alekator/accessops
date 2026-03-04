@@ -1,0 +1,20 @@
+# Performance Budget
+
+## Targets
+
+- LCP: `< 2.5s`
+- INP: `< 200ms`
+- CLS: `< 0.1`
+
+## Current mechanism
+
+- Browser `PerformanceObserver` logs LCP/CLS/INP in client console.
+- Budget overruns emit warning logs:
+  - `performance_budget_lcp_exceeded`
+  - `performance_budget_inp_exceeded`
+  - `performance_budget_cls_exceeded`
+
+## Next step
+
+- Add CI check for bundle size regression.
+- Store metrics snapshots for trend comparison across releases.

@@ -1,7 +1,12 @@
 'use client';
 
 import { authenticateDemoUser } from '@/features/auth/model/credentials';
-import { clearPersistedSession, loadSessionFromStorage, persistSession } from '@/features/auth/model/session';
+import { logInfo } from '@/features/observability/model/client-logger';
+import {
+  clearPersistedSession,
+  loadSessionFromStorage,
+  persistSession,
+} from '@/features/auth/model/session';
 import { ROLES, type Role, type Session } from '@/shared/types/auth';
 import { createContext, useContext, useMemo, useState } from 'react';
 
@@ -35,8 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const nextSession = authenticateDemoUser(input.email, input.password);
         persistSession(nextSession);
         setSession(nextSession);
+        logInfo('auth_login_success', { email: nextSession.email, role: nextSession.role });
       },
       logout() {
+        logInfo('auth_logout', { email: session?.email ?? null });
         clearPersistedSession();
         setSession(null);
       },
@@ -47,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const nextSession = { ...session, role: nextRole };
         persistSession(nextSession);
         setSession(nextSession);
+        logInfo('auth_role_switched', { email: session.email, from: session.role, to: nextRole });
       },
     }),
     [session],

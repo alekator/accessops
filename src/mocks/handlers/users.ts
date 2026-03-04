@@ -104,9 +104,9 @@ export const usersHandlers = [
 
     await new Promise((resolve) => setTimeout(resolve, 350));
 
+    const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
     const shouldFail =
-      (process.env.E2E !== '1' && Math.random() < 0.1) ||
-      request.headers.get('x-force-error') === '1';
+      (!isAutomation && Math.random() < 0.1) || request.headers.get('x-force-error') === '1';
     if (shouldFail) {
       return HttpResponse.json(
         {

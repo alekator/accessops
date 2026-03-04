@@ -14,6 +14,7 @@ import {
   EditUserFormSchema,
   type EditUserFormValues,
 } from '@/entities/user/model/edit-user-schema';
+import { logInfo } from '@/features/observability/model/client-logger';
 import { applyOptimisticUserUpdate } from '@/features/users/edit-user/model/optimistic-update';
 import { useUnsavedChangesGuard } from '@/shared/lib/use-unsaved-changes-guard';
 
@@ -89,6 +90,7 @@ export default function EditUserPage() {
     onSuccess: (updated) => {
       queryClient.setQueryData(['user', userId], updated);
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      logInfo('user_updated', { userId: updated.id, email: updated.email, status: updated.status });
       toast.success('User updated');
       router.push(`/users/${userId}`);
     },
