@@ -11,25 +11,32 @@ Production-grade admin dashboard built with Next.js, React, and TypeScript. The 
 
 This is a frontend-first portfolio case. REST endpoints and real-time events are mocked with MSW and an in-browser event bus, so the product behaves like a full system without requiring a backend service.
 
-## Launch Vision
+## Project Scope
 
-The goal of this project is not just to render UI screens. It is designed to demonstrate the kind of frontend work that matters in production:
+This project models an access-management dashboard with the workflows typically found in internal enterprise systems.
 
-- architecting a multi-module SPA with clear domain boundaries
-- building complex forms and data grids with predictable state
-- modeling RBAC behavior at route and component level
-- handling optimistic updates, validation, retries, and offline states
-- shipping with tests, CI, quality gates, and developer tooling
+It focuses on:
 
-For a frontend role focused on React and TypeScript, this is the kind of portfolio project that shows engineering maturity instead of only visual polish.
+- authenticated access with role-aware routing
+- operational data tables with filtering, sorting, pagination, and URL state
+- form-heavy CRUD flows with validation and optimistic updates
+- permission management through a matrix-based policy editor
+- audit visibility with searchable event history
+- resilience patterns such as retry handling, offline feedback, and error boundaries
 
-## What Makes This Project Strong
+The application is frontend-first: backend behavior is simulated with MSW and in-memory mock data so the full flow can be demonstrated locally.
 
-- Real application shape: auth, protected routes, multi-page dashboard, feature modules
-- Meaningful frontend complexity: forms, filters, URL state, permission matrix, infinite queries
-- Production-minded DX: strict typing, contract validation, pre-commit hooks, CI pipeline, e2e suite
-- Demonstrable business logic: role restrictions, read-only states, optimistic rollback, audit events
-- Frontend/system thinking: mocked API versioning, performance budget gate, observability notes, release process
+## Implemented Areas
+
+- Authentication, session handling, and protected routes
+- RBAC behavior for `Admin`, `Manager`, and `Viewer`
+- Users module with search, filters, sorting, pagination, date range, and bulk actions
+- User details and edit flow with dynamic validation and async checks
+- Roles permission matrix with diff tracking and JSON import/export
+- Audit log with infinite loading, filters, expandable payload details, and CSV export
+- Real-time event simulation with cache invalidation
+- Offline banner, connectivity notifications, and dashboard error boundary
+- Unit tests, Playwright e2e coverage, CI pipeline, and bundle budget checks
 
 ## Screenshots
 
