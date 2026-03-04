@@ -2,6 +2,7 @@
 
 import { getUsers } from '@/entities/user/api/get-users';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -154,13 +155,14 @@ export default function UsersPage() {
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Created</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {usersQuery.isLoading
               ? Array.from({ length: parsedQuery.pageSize }, (_, idx) => (
                   <tr key={`skeleton-${idx}`} className="border-t border-zinc-200">
-                    <td className="px-4 py-3 text-zinc-400" colSpan={5}>
+                    <td className="px-4 py-3 text-zinc-400" colSpan={6}>
                       Loading...
                     </td>
                   </tr>
@@ -172,6 +174,16 @@ export default function UsersPage() {
                     <td className="px-4 py-3">{user.role}</td>
                     <td className="px-4 py-3">{user.status}</td>
                     <td className="px-4 py-3">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <Link href={`/users/${user.id}`} className="text-blue-700 hover:underline">
+                          View
+                        </Link>
+                        <Link href={`/users/${user.id}/edit`} className="text-blue-700 hover:underline">
+                          Edit
+                        </Link>
+                      </div>
+                    </td>
                   </tr>
                 ))}
           </tbody>

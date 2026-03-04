@@ -9,6 +9,7 @@ export const UserSchema = z.object({
   email: z.string().email(),
   role: UserRoleSchema,
   status: UserStatusSchema,
+  suspendReason: z.string().optional(),
   createdAt: z.string(),
 });
 

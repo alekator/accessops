@@ -25,6 +25,7 @@ export function createUsersFixture(count = 200): User[] {
       email: `user${suffix}@accessops.dev`,
       role,
       status,
+      suspendReason: status === 'Suspended' ? 'Policy violation' : undefined,
       createdAt: seededDate(id),
     };
   });
