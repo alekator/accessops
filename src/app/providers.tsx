@@ -2,8 +2,9 @@
 
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/features/auth/ui/auth-provider';
+import { initMocks } from '@/mocks/init';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -17,11 +18,22 @@ export function Providers({ children }: { children: ReactNode }) {
         },
       }),
   );
+  const [isMocksReady, setIsMocksReady] = useState(process.env.NODE_ENV !== 'development');
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') {
+      return;
+    }
+
+    initMocks().finally(() => {
+      setIsMocksReady(true);
+    });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {children}
+        {isMocksReady ? children : null}
         <Toaster richColors position="top-right" />
       </AuthProvider>
     </QueryClientProvider>

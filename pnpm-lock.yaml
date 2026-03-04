@@ -20,6 +20,9 @@ importers:
       lucide-react:
         specifier: ^0.575.0
         version: 0.575.0(react@19.2.3)
+      msw:
+        specifier: ^2.12.2
+        version: 2.12.10(@types/node@20.19.35)(typescript@5.9.3)
       next:
         specifier: 16.1.6
         version: 16.1.6(@babel/core@7.29.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -41,6 +44,9 @@ importers:
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.3.6
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
