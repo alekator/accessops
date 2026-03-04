@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/features/auth/ui/auth-provider';
+import { emitRandomRealtimeEvent } from '@/mocks/ws/event-bus';
 import { ROLES, type Role } from '@/shared/types/auth';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -66,6 +67,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                   </option>
                 ))}
               </select>
+
+              <button
+                type="button"
+                className="rounded-md border border-zinc-300 px-3 py-1 text-sm hover:bg-zinc-100"
+                onClick={() => emitRandomRealtimeEvent()}
+              >
+                Simulate event
+              </button>
 
               <button
                 type="button"
