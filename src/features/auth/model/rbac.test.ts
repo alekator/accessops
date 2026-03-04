@@ -28,6 +28,10 @@ describe('resolveRouteAccess', () => {
       allowed: false,
       redirectTo: '/users',
     });
+    expect(resolveRouteAccess('/roles/advanced', 'Viewer')).toEqual({
+      allowed: false,
+      redirectTo: '/users',
+    });
   });
 
   it('allows Manager to access roles page in read mode', () => {
