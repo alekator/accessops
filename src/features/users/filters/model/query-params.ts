@@ -7,6 +7,8 @@ export const DEFAULT_USERS_QUERY: UsersQueryParams = {
   search: '',
   status: 'All',
   role: 'All',
+  from: '',
+  to: '',
   sortBy: 'createdAt',
   sortOrder: 'desc',
 };
@@ -29,7 +31,8 @@ export function parseUsersQueryParams(input: QueryLike): UsersQueryParams {
   const sortByRaw = input.get('sortBy');
   const sortOrderRaw = input.get('sortOrder');
 
-  const status = statusRaw === 'All' || UserStatusSchema.safeParse(statusRaw).success ? statusRaw : null;
+  const status =
+    statusRaw === 'All' || UserStatusSchema.safeParse(statusRaw).success ? statusRaw : null;
   const role = roleRaw === 'All' || UserRoleSchema.safeParse(roleRaw).success ? roleRaw : null;
 
   return {
@@ -38,11 +41,16 @@ export function parseUsersQueryParams(input: QueryLike): UsersQueryParams {
     search: input.get('search') ?? DEFAULT_USERS_QUERY.search,
     status: (status as UsersQueryParams['status'] | null) ?? DEFAULT_USERS_QUERY.status,
     role: (role as UsersQueryParams['role'] | null) ?? DEFAULT_USERS_QUERY.role,
+    from: input.get('from') ?? DEFAULT_USERS_QUERY.from,
+    to: input.get('to') ?? DEFAULT_USERS_QUERY.to,
     sortBy:
       sortByRaw === 'name' || sortByRaw === 'email' || sortByRaw === 'createdAt'
         ? sortByRaw
         : DEFAULT_USERS_QUERY.sortBy,
-    sortOrder: sortOrderRaw === 'asc' || sortOrderRaw === 'desc' ? sortOrderRaw : DEFAULT_USERS_QUERY.sortOrder,
+    sortOrder:
+      sortOrderRaw === 'asc' || sortOrderRaw === 'desc'
+        ? sortOrderRaw
+        : DEFAULT_USERS_QUERY.sortOrder,
   };
 }
 
@@ -63,6 +71,12 @@ export function toUsersQueryString(query: UsersQueryParams): string {
   }
   if (query.role !== DEFAULT_USERS_QUERY.role) {
     params.set('role', query.role);
+  }
+  if (query.from !== DEFAULT_USERS_QUERY.from) {
+    params.set('from', query.from);
+  }
+  if (query.to !== DEFAULT_USERS_QUERY.to) {
+    params.set('to', query.to);
   }
   if (query.sortBy !== DEFAULT_USERS_QUERY.sortBy) {
     params.set('sortBy', query.sortBy);

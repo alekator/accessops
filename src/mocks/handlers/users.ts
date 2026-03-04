@@ -1,5 +1,11 @@
 import { appendAuditEvent } from '@/mocks/db/audit-db';
-import { getUserById, isEmailUnique, listUsers, updateUserById } from '@/mocks/db/users-db';
+import {
+  bulkUpdateUsersStatus,
+  getUserById,
+  isEmailUnique,
+  listUsers,
+  updateUserById,
+} from '@/mocks/db/users-db';
 import { http, HttpResponse } from 'msw';
 
 type SortBy = 'name' | 'email' | 'createdAt';
@@ -40,16 +46,23 @@ export const usersHandlers = [
     const search = (url.searchParams.get('search') ?? '').trim().toLowerCase();
     const status = url.searchParams.get('status');
     const role = url.searchParams.get('role');
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
     const sortBy = (url.searchParams.get('sortBy') as SortBy | null) ?? 'createdAt';
     const sortOrder = (url.searchParams.get('sortOrder') as SortOrder | null) ?? 'desc';
+    const fromTs = from ? new Date(from).getTime() : null;
+    const toTs = to ? new Date(`${to}T23:59:59.999Z`).getTime() : null;
 
     let filtered = listUsers().filter((item) => {
+      const createdAtTs = new Date(item.createdAt).getTime();
       const statusOk = status ? item.status === status : true;
       const roleOk = role ? item.role === role : true;
       const searchOk = search
         ? item.name.toLowerCase().includes(search) || item.email.toLowerCase().includes(search)
         : true;
-      return statusOk && roleOk && searchOk;
+      const fromOk = fromTs ? createdAtTs >= fromTs : true;
+      const toOk = toTs ? createdAtTs <= toTs : true;
+      return statusOk && roleOk && searchOk && fromOk && toOk;
     });
 
     filtered = filtered.sort((left, right) => {
@@ -150,5 +163,64 @@ export const usersHandlers = [
     });
 
     return HttpResponse.json(updated);
+  }),
+  http.post('/api/v1/users/bulk-status', async ({ request }) => {
+    const body = (await request.json()) as {
+      userIds?: unknown;
+      status?: unknown;
+    };
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+    const shouldFail =
+      (!isAutomation && Math.random() < 0.1) || request.headers.get('x-force-error') === '1';
+    if (shouldFail) {
+      return HttpResponse.json(
+        {
+          message: 'Bulk update failed. Please retry.',
+          code: 'WRITE_FAILED',
+        },
+        { status: 500 },
+      );
+    }
+
+    const userIds = Array.isArray(body.userIds)
+      ? body.userIds.filter((item): item is string => typeof item === 'string')
+      : [];
+    const statusValue = body.status;
+
+    if (userIds.length === 0 || (statusValue !== 'Active' && statusValue !== 'Suspended')) {
+      return HttpResponse.json(
+        {
+          message: 'Invalid bulk status payload',
+          code: 'VALIDATION_ERROR',
+        },
+        { status: 400 },
+      );
+    }
+
+    const updated = bulkUpdateUsersStatus(userIds, statusValue);
+    updated.forEach((user) => {
+      appendAuditEvent({
+        userId: user.id,
+        action: statusValue === 'Suspended' ? 'USER_SUSPENDED' : 'USER_UPDATED',
+        message: `${statusValue === 'Suspended' ? 'USER_SUSPENDED' : 'USER_UPDATED'} by bulk action for ${user.email}`,
+        details: {
+          entityId: user.id,
+          email: user.email,
+          status: user.status,
+        },
+      });
+    });
+
+    const items = listUsers().slice(0, 10);
+    return HttpResponse.json({
+      items,
+      page: 1,
+      pageSize: 10,
+      total: listUsers().length,
+      totalPages: Math.max(1, Math.ceil(listUsers().length / 10)),
+    });
   }),
 ];

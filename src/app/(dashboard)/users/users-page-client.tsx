@@ -1,5 +1,6 @@
 'use client';
 
+import { bulkUpdateUsersStatus } from '@/entities/user/api/bulk-update-users-status';
 import { getUsers } from '@/entities/user/api/get-users';
 import {
   DEFAULT_USERS_QUERY,
@@ -7,18 +8,21 @@ import {
   toUsersQueryString,
 } from '@/features/users/filters/model/query-params';
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 export function UsersPageClient() {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
 
   const parsedQuery = useMemo(() => parseUsersQueryParams(searchParams), [searchParams]);
   const [searchInput, setSearchInput] = useState(parsedQuery.search);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const debouncedSearch = useDebouncedValue(searchInput, 300);
 
   useEffect(() => {
@@ -46,12 +50,31 @@ export function UsersPageClient() {
     placeholderData: keepPreviousData,
   });
 
+  const bulkMutation = useMutation({
+    mutationFn: ({ status, userIds }: { status: 'Active' | 'Suspended'; userIds: string[] }) =>
+      bulkUpdateUsersStatus(userIds, status),
+    onSuccess: async (_, variables) => {
+      setSelectedIds([]);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['users'] }),
+        queryClient.invalidateQueries({ queryKey: ['audit'] }),
+      ]);
+      toast.success(
+        variables.status === 'Suspended' ? 'Selected users suspended' : 'Selected users activated',
+      );
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Bulk update failed');
+    },
+  });
+
   function updateQuery(
     patch: Partial<typeof parsedQuery>,
     options?: {
       resetPage?: boolean;
     },
   ) {
+    setSelectedIds([]);
     const next = {
       ...parsedQuery,
       ...patch,
@@ -63,17 +86,24 @@ export function UsersPageClient() {
     router.replace(nextUrl);
   }
 
+  const allVisibleSelected =
+    (usersQuery.data?.items.length ?? 0) > 0 &&
+    usersQuery.data?.items.every((item) => selectedIds.includes(item.id));
+
   return (
     <section className="space-y-4">
       <h2 className="text-2xl font-semibold">Users</h2>
       <p className="text-sm text-zinc-600">
-        Server-side pagination, sorting, filters, and URL-synced state.
+        Server-side pagination, sorting, filters, bulk actions, and URL-synced state.
       </p>
 
-      <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 rounded-lg border border-zinc-200 bg-white p-4 md:grid-cols-2 xl:grid-cols-6">
         <input
           value={searchInput}
-          onChange={(event) => setSearchInput(event.target.value)}
+          onChange={(event) => {
+            setSelectedIds([]);
+            setSearchInput(event.target.value);
+          }}
           placeholder="Search by name or email"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm xl:col-span-2"
         />
@@ -110,7 +140,23 @@ export function UsersPageClient() {
           <option value="Viewer">Viewer</option>
         </select>
 
-        <div className="grid grid-cols-2 gap-2">
+        <input
+          type="date"
+          aria-label="Created from"
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          value={parsedQuery.from}
+          onChange={(event) => updateQuery({ from: event.target.value }, { resetPage: true })}
+        />
+
+        <input
+          type="date"
+          aria-label="Created to"
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          value={parsedQuery.to}
+          onChange={(event) => updateQuery({ to: event.target.value }, { resetPage: true })}
+        />
+
+        <div className="grid grid-cols-2 gap-2 md:col-span-2 xl:col-span-2">
           <select
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
             value={parsedQuery.sortBy}
@@ -141,6 +187,26 @@ export function UsersPageClient() {
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-white p-4">
+        <span className="text-sm text-zinc-600">Selected: {selectedIds.length}</span>
+        <button
+          type="button"
+          disabled={selectedIds.length === 0 || bulkMutation.isPending}
+          onClick={() => bulkMutation.mutate({ status: 'Suspended', userIds: selectedIds })}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Bulk Suspend
+        </button>
+        <button
+          type="button"
+          disabled={selectedIds.length === 0 || bulkMutation.isPending}
+          onClick={() => bulkMutation.mutate({ status: 'Active', userIds: selectedIds })}
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Bulk Activate
+        </button>
+      </div>
+
       {usersQuery.isError ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           Failed to load users. Please try again.
@@ -151,6 +217,27 @@ export function UsersPageClient() {
         <table className="w-full table-fixed border-collapse">
           <thead className="bg-zinc-100 text-left text-xs tracking-wide text-zinc-600 uppercase">
             <tr>
+              <th className="px-4 py-3">
+                <input
+                  aria-label="Select all visible users"
+                  type="checkbox"
+                  checked={Boolean(allVisibleSelected)}
+                  onChange={(event) => {
+                    if (!usersQuery.data?.items) {
+                      return;
+                    }
+                    if (event.target.checked) {
+                      setSelectedIds((prev) =>
+                        Array.from(
+                          new Set([...prev, ...usersQuery.data.items.map((item) => item.id)]),
+                        ),
+                      );
+                      return;
+                    }
+                    setSelectedIds([]);
+                  }}
+                />
+              </th>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Role</th>
@@ -163,13 +250,27 @@ export function UsersPageClient() {
             {usersQuery.isLoading
               ? Array.from({ length: parsedQuery.pageSize }, (_, idx) => (
                   <tr key={`skeleton-${idx}`} className="border-t border-zinc-200">
-                    <td className="px-4 py-3 text-zinc-400" colSpan={6}>
+                    <td className="px-4 py-3 text-zinc-400" colSpan={7}>
                       Loading...
                     </td>
                   </tr>
                 ))
               : usersQuery.data?.items.map((user) => (
                   <tr key={user.id} className="border-t border-zinc-200">
+                    <td className="px-4 py-3">
+                      <input
+                        aria-label={`Select ${user.id}`}
+                        type="checkbox"
+                        checked={selectedIds.includes(user.id)}
+                        onChange={(event) => {
+                          setSelectedIds((prev) =>
+                            event.target.checked
+                              ? Array.from(new Set([...prev, user.id]))
+                              : prev.filter((id) => id !== user.id),
+                          );
+                        }}
+                      />
+                    </td>
                     <td className="px-4 py-3">{user.name}</td>
                     <td className="px-4 py-3">{user.email}</td>
                     <td className="px-4 py-3">{user.role}</td>

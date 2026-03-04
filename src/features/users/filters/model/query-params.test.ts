@@ -15,6 +15,8 @@ describe('parseUsersQueryParams', () => {
       search: 'alex',
       status: 'Active',
       role: 'Manager',
+      from: '2025-01-01',
+      to: '2025-01-31',
       sortBy: 'name',
       sortOrder: 'asc',
     });
@@ -26,6 +28,8 @@ describe('parseUsersQueryParams', () => {
       search: 'alex',
       status: 'Active',
       role: 'Manager',
+      from: '2025-01-01',
+      to: '2025-01-31',
       sortBy: 'name',
       sortOrder: 'asc',
     });
@@ -56,11 +60,13 @@ describe('toUsersQueryString', () => {
       ...DEFAULT_USERS_QUERY,
       page: 2,
       status: 'Suspended',
+      from: '2025-02-01',
       sortBy: 'name',
     });
 
     expect(result).toContain('page=2');
     expect(result).toContain('status=Suspended');
+    expect(result).toContain('from=2025-02-01');
     expect(result).toContain('sortBy=name');
     expect(result).not.toContain('pageSize=');
   });

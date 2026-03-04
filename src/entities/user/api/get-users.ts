@@ -1,4 +1,8 @@
-import { UsersListResponseSchema, type UserRole, type UserStatus } from '@/entities/user/model/schemas';
+import {
+  UsersListResponseSchema,
+  type UserRole,
+  type UserStatus,
+} from '@/entities/user/model/schemas';
 import { apiRequest } from '@/shared/api/client';
 
 export type UsersQueryParams = {
@@ -7,6 +11,8 @@ export type UsersQueryParams = {
   search: string;
   status: UserStatus | 'All';
   role: UserRole | 'All';
+  from: string;
+  to: string;
   sortBy: 'name' | 'email' | 'createdAt';
   sortOrder: 'asc' | 'desc';
 };
@@ -19,6 +25,8 @@ export async function getUsers(query: UsersQueryParams) {
       search: query.search || undefined,
       status: query.status === 'All' ? undefined : query.status,
       role: query.role === 'All' ? undefined : query.role,
+      from: query.from || undefined,
+      to: query.to || undefined,
       sortBy: query.sortBy,
       sortOrder: query.sortOrder,
     },

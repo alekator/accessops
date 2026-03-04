@@ -45,3 +45,34 @@ export function updateUserById(
   usersDb[index] = next;
   return next;
 }
+
+export function bulkUpdateUsersStatus(
+  userIds: string[],
+  status: 'Active' | 'Suspended',
+  suspendReason?: string,
+) {
+  const updatedIds = new Set(userIds);
+  const updated = usersDb
+    .map((user) => {
+      if (!updatedIds.has(user.id)) {
+        return null;
+      }
+
+      const next = {
+        ...user,
+        status,
+        suspendReason:
+          status === 'Suspended' ? (suspendReason ?? 'Bulk moderation update') : undefined,
+      };
+
+      const index = usersDb.findIndex((item) => item.id === user.id);
+      if (index >= 0) {
+        usersDb[index] = next;
+      }
+
+      return next;
+    })
+    .filter((value): value is NonNullable<typeof value> => Boolean(value));
+
+  return updated;
+}
