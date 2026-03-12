@@ -249,6 +249,7 @@ Local developer workflow also includes:
 
 Detailed supporting docs:
 
+- [Authorization Model](./docs/AUTHORIZATION_MODEL.md)
 - [Observability](./docs/OBSERVABILITY.md)
 - [Performance Budget](./docs/PERFORMANCE_BUDGET.md)
 - [Security Notes](./docs/SECURITY_NOTES.md)
