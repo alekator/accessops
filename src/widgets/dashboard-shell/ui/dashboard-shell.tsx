@@ -6,18 +6,21 @@ import { ROLES, type Role } from '@/shared/types/auth';
 import { OfflineBanner } from '@/widgets/offline-banner/ui/offline-banner';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const NAV_ITEMS = [
   { href: '/users', label: 'Users' },
   { href: '/roles', label: 'Roles' },
   { href: '/audit', label: 'Audit' },
+  { href: '/roles?view=states', label: 'UI States' },
 ];
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { session, role, logout, switchRole } = useAuth();
+  const isUiStatesView = pathname.startsWith('/roles') && searchParams.get('view') === 'states';
 
   return (
     <div className="min-h-screen text-zinc-900">
@@ -33,7 +36,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
           <nav aria-label="Primary" className="mt-8 space-y-1">
             {NAV_ITEMS.map((item) => {
-              const active = pathname.startsWith(item.href);
+              const active =
+                item.href === '/roles?view=states'
+                  ? isUiStatesView
+                  : item.href === '/roles'
+                    ? pathname.startsWith('/roles') && !isUiStatesView
+                    : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}

@@ -104,6 +104,7 @@ Infinite event feed with filters, expandable JSON details, and CSV export.
 
 - Permission matrix with cell, row, column, and global toggles
 - Draft vs saved state diff tracking
+- Policy revision workflow (propose, approve/reject, rollback)
 - JSON import / export for policy workflows
 - Effective permission summary for the selected role
 - Locked UX for read-only roles
@@ -237,6 +238,14 @@ What is covered:
 
 This keeps the project fully portable while still demonstrating realistic frontend architecture and state behavior.
 
+## UI State Catalog
+
+Storybook-equivalent visual state coverage is available at:
+
+- `/roles?view=states`
+
+It includes canonical admin states (empty/loading/error/read-only/offline/revision flows) and is covered by e2e smoke checks.
+
 ## 5-Minute Recruiter Demo
 
 1. Sign in as `admin@accessops.dev`.
@@ -271,6 +280,7 @@ Detailed supporting docs:
 
 - [Authorization Model](./docs/AUTHORIZATION_MODEL.md)
 - [Accessibility](./docs/ACCESSIBILITY.md)
+- [UI State Catalog](./docs/UI_STATE_CATALOG.md)
 - [Observability](./docs/OBSERVABILITY.md)
 - [Performance Budget](./docs/PERFORMANCE_BUDGET.md)
 - [Security Notes](./docs/SECURITY_NOTES.md)
