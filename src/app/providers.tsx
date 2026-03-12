@@ -3,18 +3,49 @@
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/features/auth/ui/auth-provider';
 import { ConnectivityToastsProvider } from '@/features/connectivity/ui/connectivity-toasts-provider';
+import {
+  logError,
+  resolveLogCategoryFromError,
+} from '@/features/observability/model/client-logger';
+import { DevDiagnosticsPanel } from '@/features/observability/ui/dev-diagnostics-panel';
 import { WebVitalsObserver } from '@/features/observability/ui/web-vitals-observer';
 import { RealtimeEventsProvider } from '@/features/realtime/ui/realtime-events-provider';
 import { initMocks } from '@/mocks/init';
 import { isMockMode } from '@/shared/config/runtime';
 import { shouldRetryQuery } from '@/shared/lib/retry-policy';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect, useState } from 'react';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
+        queryCache: new QueryCache({
+          onError: (error, query) => {
+            logError(
+              'query_error',
+              {
+                queryKey: query.queryKey,
+              },
+              resolveLogCategoryFromError(error),
+            );
+          },
+        }),
+        mutationCache: new MutationCache({
+          onError: (error, variables, _context, mutation) => {
+            logError(
+              'mutation_error',
+              {
+                mutationKey: mutation.options.mutationKey,
+                variables:
+                  variables && typeof variables === 'object'
+                    ? (variables as Record<string, unknown>)
+                    : undefined,
+              },
+              resolveLogCategoryFromError(error),
+            );
+          },
+        }),
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
@@ -48,6 +79,7 @@ export function Providers({ children }: { children: ReactNode }) {
           <AuthProvider>
             {isMocksReady ? children : null}
             <WebVitalsObserver />
+            <DevDiagnosticsPanel />
             <Toaster richColors position="top-right" />
           </AuthProvider>
         </RealtimeEventsProvider>

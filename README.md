@@ -123,6 +123,7 @@ Infinite event feed with filters, expandable JSON details, and CSV export.
 - Connectivity toasts and offline banner
 - Route-level dashboard error boundary
 - Retry policy for transient query failures
+- Dev diagnostics panel with categorized telemetry and request correlation IDs
 
 ## Tech Stack
 

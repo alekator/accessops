@@ -21,9 +21,9 @@ export function WebVitalsObserver() {
         return;
       }
       const value = Math.round(last.startTime);
-      logInfo('web_vital_lcp', { value });
+      logInfo('web_vital_lcp', { value }, 'performance');
       if (value > 2500) {
-        logWarn('performance_budget_lcp_exceeded', { value, budget: 2500 });
+        logWarn('performance_budget_lcp_exceeded', { value, budget: 2500 }, 'performance');
       }
     });
 
@@ -37,9 +37,13 @@ export function WebVitalsObserver() {
       });
       if (cls > 0) {
         const rounded = Number(cls.toFixed(3));
-        logInfo('web_vital_cls', { value: rounded });
+        logInfo('web_vital_cls', { value: rounded }, 'performance');
         if (rounded > 0.1) {
-          logWarn('performance_budget_cls_exceeded', { value: rounded, budget: 0.1 });
+          logWarn(
+            'performance_budget_cls_exceeded',
+            { value: rounded, budget: 0.1 },
+            'performance',
+          );
         }
       }
     });
@@ -51,9 +55,9 @@ export function WebVitalsObserver() {
       }
       const longest = entries.reduce((acc, entry) => Math.max(acc, entry.duration), 0);
       const rounded = Math.round(longest);
-      logInfo('web_vital_inp', { value: rounded });
+      logInfo('web_vital_inp', { value: rounded }, 'performance');
       if (rounded > 200) {
-        logWarn('performance_budget_inp_exceeded', { value: rounded, budget: 200 });
+        logWarn('performance_budget_inp_exceeded', { value: rounded, budget: 200 }, 'performance');
       }
     });
 
