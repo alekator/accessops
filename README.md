@@ -183,6 +183,23 @@ pnpm dev
 
 Open `http://localhost:3000`
 
+### Runtime Modes
+
+The app now supports two runtime API modes via environment variables:
+
+- `mock` mode (default): MSW handlers + in-memory fixtures
+- `api` mode: requests go directly to configured API base URL
+
+Create `.env.local` for explicit mode selection:
+
+```bash
+# default is mock if not set
+NEXT_PUBLIC_API_MODE=mock
+
+# only used in api mode, example:
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+```
+
 ### Demo Accounts
 
 - `admin@accessops.dev / demo123`
@@ -210,6 +227,9 @@ What is covered:
 ## Mocking Model
 
 - All REST endpoints are versioned under `/api/v1/*`
+- Runtime mode switch:
+  - `NEXT_PUBLIC_API_MODE=mock` starts MSW in development
+  - `NEXT_PUBLIC_API_MODE=api` disables MSW and uses real API origin
 - MSW simulates backend behavior for users, roles, audit, and validation endpoints
 - Mock data is deterministic and stored in in-memory fixtures
 - Real-time updates are simulated client-side through an event bus

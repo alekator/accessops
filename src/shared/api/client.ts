@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { API_BASE_URL } from '@/shared/config/runtime';
 
 export const API_BASE_PATH = '/api/v1';
 
@@ -25,12 +26,18 @@ type RequestOptions = {
   body?: unknown;
 };
 
-function buildUrl(path: string, query?: RequestOptions['query']) {
-  const normalizedPath = normalizeApiPath(path);
-  const url = new URL(
-    normalizedPath,
-    typeof window === 'undefined' ? 'http://localhost:3000' : window.location.origin,
-  );
+function isAbsoluteUrl(path: string) {
+  return /^https?:\/\//i.test(path);
+}
+
+function getApiOrigin() {
+  if (API_BASE_URL) {
+    return API_BASE_URL;
+  }
+  return typeof window === 'undefined' ? 'http://localhost:3000' : window.location.origin;
+}
+
+function applyQuery(url: URL, query?: RequestOptions['query']) {
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       if (value !== undefined && value !== '') {
@@ -38,10 +45,26 @@ function buildUrl(path: string, query?: RequestOptions['query']) {
       }
     });
   }
+}
+
+export function buildApiUrl(path: string, query?: RequestOptions['query']) {
+  if (isAbsoluteUrl(path)) {
+    const absoluteUrl = new URL(path);
+    applyQuery(absoluteUrl, query);
+    return absoluteUrl.toString();
+  }
+
+  const normalizedPath = normalizeApiPath(path);
+  const url = new URL(normalizedPath, getApiOrigin());
+  applyQuery(url, query);
   return url.toString();
 }
 
-function normalizeApiPath(path: string): string {
+export function normalizeApiPath(path: string): string {
+  if (isAbsoluteUrl(path)) {
+    return path;
+  }
+
   if (path.startsWith(`${API_BASE_PATH}/`) || path === API_BASE_PATH) {
     return path;
   }
@@ -62,7 +85,7 @@ export async function apiRequest<TSchema extends z.ZodTypeAny>(
   schema: TSchema,
   options?: RequestOptions,
 ): Promise<z.infer<TSchema>> {
-  const response = await fetch(buildUrl(path, options?.query), {
+  const response = await fetch(buildApiUrl(path, options?.query), {
     method: options?.method ?? 'GET',
     headers: {
       'Content-Type': 'application/json',

@@ -1,3 +1,5 @@
+import { isMockMode } from '@/shared/config/runtime';
+
 let started = false;
 
 export async function initMocks() {
@@ -10,6 +12,10 @@ export async function initMocks() {
   }
 
   if (typeof window === 'undefined') {
+    return;
+  }
+
+  if (!isMockMode()) {
     return;
   }
 
