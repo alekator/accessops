@@ -19,7 +19,7 @@ import {
   toggleRow,
 } from '@/features/roles/permission-matrix/model/matrix-utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -28,11 +28,12 @@ import { UiStateCatalog } from './ui-state-catalog';
 export default function RolesPage() {
   const { role, session } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const canEdit = role === 'Admin';
   const isReadOnlyViewer = role === 'Manager';
-  const isUiStatesView = searchParams.get('view') === 'states';
+  const isUiStatesView =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('view') === 'states';
 
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [draftByRole, setDraftByRole] = useState<Record<string, PermissionPolicy>>({});

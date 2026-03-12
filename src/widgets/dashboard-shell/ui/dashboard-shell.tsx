@@ -6,7 +6,7 @@ import { ROLES, type Role } from '@/shared/types/auth';
 import { OfflineBanner } from '@/widgets/offline-banner/ui/offline-banner';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const NAV_ITEMS = [
   { href: '/users', label: 'Users' },
@@ -17,10 +17,8 @@ const NAV_ITEMS = [
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { session, role, logout, switchRole } = useAuth();
-  const isUiStatesView = pathname.startsWith('/roles') && searchParams.get('view') === 'states';
 
   return (
     <div className="min-h-screen text-zinc-900">
@@ -38,10 +36,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             {NAV_ITEMS.map((item) => {
               const active =
                 item.href === '/roles?view=states'
-                  ? isUiStatesView
-                  : item.href === '/roles'
-                    ? pathname.startsWith('/roles') && !isUiStatesView
-                    : pathname.startsWith(item.href);
+                  ? pathname.startsWith('/roles')
+                  : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}

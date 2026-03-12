@@ -86,10 +86,11 @@ export function UsersPageClient() {
     router.replace(nextUrl);
   }
 
+  const selectedIdsSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const usersItems = usersQuery.data?.items ?? [];
   const allVisibleSelected =
-    (usersQuery.data?.items.length ?? 0) > 0 &&
-    usersQuery.data?.items.every((item) => selectedIds.includes(item.id));
-  const visibleCount = usersQuery.data?.items.length ?? 0;
+    usersItems.length > 0 && usersItems.every((item) => selectedIdsSet.has(item.id));
+  const visibleCount = usersItems.length;
 
   return (
     <section className="space-y-5">
@@ -299,13 +300,13 @@ export function UsersPageClient() {
                     </td>
                   </tr>
                 ))
-              : usersQuery.data?.items.map((user) => (
+              : usersItems.map((user) => (
                   <tr key={user.id} className="border-t border-zinc-200">
                     <td className="px-4 py-3">
                       <input
                         aria-label={`Select ${user.id}`}
                         type="checkbox"
-                        checked={selectedIds.includes(user.id)}
+                        checked={selectedIdsSet.has(user.id)}
                         onChange={(event) => {
                           setSelectedIds((prev) =>
                             event.target.checked

@@ -25,6 +25,7 @@ export function AuditPageClient() {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+  const { fetchNextPage, hasNextPage, isFetchingNextPage } = auditQuery;
 
   useEffect(() => {
     if (!loadMoreRef.current) {
@@ -35,8 +36,8 @@ export function AuditPageClient() {
     const observer = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
-        if (first?.isIntersecting && auditQuery.hasNextPage && !auditQuery.isFetchingNextPage) {
-          auditQuery.fetchNextPage();
+        if (first?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
         }
       },
       {
@@ -46,7 +47,7 @@ export function AuditPageClient() {
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [auditQuery]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   function updateFilters(patch: Partial<typeof filters>) {
     const next = {
@@ -57,7 +58,10 @@ export function AuditPageClient() {
     router.replace(qs ? `${pathname}?${qs}` : pathname);
   }
 
-  const events = auditQuery.data?.pages.flatMap((page) => page.items) ?? [];
+  const events = useMemo(
+    () => auditQuery.data?.pages.flatMap((page) => page.items) ?? [],
+    [auditQuery.data],
+  );
 
   return (
     <section className="space-y-5">
