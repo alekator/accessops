@@ -65,5 +65,8 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Run A11y smoke checks
+        run: pnpm e2e:a11y
+
       - name: Run E2E
         run: pnpm e2e

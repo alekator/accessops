@@ -89,6 +89,7 @@ export function UsersPageClient() {
   const allVisibleSelected =
     (usersQuery.data?.items.length ?? 0) > 0 &&
     usersQuery.data?.items.every((item) => selectedIds.includes(item.id));
+  const visibleCount = usersQuery.data?.items.length ?? 0;
 
   return (
     <section className="space-y-5">
@@ -102,8 +103,16 @@ export function UsersPageClient() {
         </p>
       </div>
 
-      <div className="grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)] md:grid-cols-2 xl:grid-cols-6">
+      <div
+        role="search"
+        aria-label="Users filters"
+        className="grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)] md:grid-cols-2 xl:grid-cols-6"
+      >
+        <label htmlFor="users-search" className="sr-only">
+          Search users
+        </label>
         <input
+          id="users-search"
           value={searchInput}
           onChange={(event) => {
             setSelectedIds([]);
@@ -113,7 +122,11 @@ export function UsersPageClient() {
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm xl:col-span-2"
         />
 
+        <label htmlFor="users-status" className="sr-only">
+          Status filter
+        </label>
         <select
+          id="users-status"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
           value={parsedQuery.status}
           onChange={(event) =>
@@ -129,7 +142,11 @@ export function UsersPageClient() {
           <option value="Invited">Invited</option>
         </select>
 
+        <label htmlFor="users-role" className="sr-only">
+          Role filter
+        </label>
         <select
+          id="users-role"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
           value={parsedQuery.role}
           onChange={(event) =>
@@ -145,7 +162,11 @@ export function UsersPageClient() {
           <option value="Viewer">Viewer</option>
         </select>
 
+        <label htmlFor="users-created-from" className="sr-only">
+          Created from date
+        </label>
         <input
+          id="users-created-from"
           type="date"
           aria-label="Created from"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
@@ -153,7 +174,11 @@ export function UsersPageClient() {
           onChange={(event) => updateQuery({ from: event.target.value }, { resetPage: true })}
         />
 
+        <label htmlFor="users-created-to" className="sr-only">
+          Created to date
+        </label>
         <input
+          id="users-created-to"
           type="date"
           aria-label="Created to"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
@@ -162,7 +187,11 @@ export function UsersPageClient() {
         />
 
         <div className="grid grid-cols-2 gap-2 md:col-span-2 xl:col-span-2">
+          <label htmlFor="users-sort-by" className="sr-only">
+            Sort by
+          </label>
           <select
+            id="users-sort-by"
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
             value={parsedQuery.sortBy}
             onChange={(event) =>
@@ -176,7 +205,11 @@ export function UsersPageClient() {
             <option value="name">Name</option>
             <option value="email">Email</option>
           </select>
+          <label htmlFor="users-sort-order" className="sr-only">
+            Sort order
+          </label>
           <select
+            id="users-sort-order"
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
             value={parsedQuery.sortOrder}
             onChange={(event) =>
@@ -211,6 +244,11 @@ export function UsersPageClient() {
           Bulk Activate
         </button>
       </div>
+      <p role="status" aria-live="polite" className="sr-only">
+        {usersQuery.isLoading
+          ? 'Loading users'
+          : `Showing ${visibleCount} users. ${selectedIds.length} selected.`}
+      </p>
 
       {usersQuery.isError ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -220,6 +258,7 @@ export function UsersPageClient() {
 
       <div className="overflow-hidden rounded-[24px] border border-white/70 bg-white/90 shadow-[0_10px_35px_rgba(148,163,184,0.12)]">
         <table className="w-full table-fixed border-collapse">
+          <caption className="sr-only">Users results table</caption>
           <thead className="bg-zinc-100/85 text-left text-xs tracking-wide text-zinc-600 uppercase">
             <tr>
               <th className="px-4 py-3">

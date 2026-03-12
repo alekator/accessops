@@ -31,13 +31,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <p className="mt-1 text-xs text-slate-300">RBAC Management Demo</p>
           </div>
 
-          <nav className="mt-8 space-y-1">
+          <nav aria-label="Primary" className="mt-8 space-y-1">
             {NAV_ITEMS.map((item) => {
               const active = pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? 'page' : undefined}
                   className={clsx(
                     'block rounded-2xl px-3 py-3 text-sm font-medium transition-all duration-200',
                     active
@@ -108,7 +109,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </header>
           <OfflineBanner />
 
-          <main className="flex-1 p-5 lg:p-6">{children}</main>
+          <main id="main-content" tabIndex={-1} className="flex-1 p-5 lg:p-6">
+            {children}
+          </main>
         </div>
       </div>
     </div>

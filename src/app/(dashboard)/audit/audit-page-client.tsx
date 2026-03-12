@@ -72,14 +72,22 @@ export function AuditPageClient() {
       </div>
 
       <div className="grid gap-3 rounded-[22px] border border-white/70 bg-white/90 p-4 shadow-[0_10px_35px_rgba(148,163,184,0.12)] md:grid-cols-5">
+        <label htmlFor="audit-user-id-filter" className="sr-only">
+          User ID filter
+        </label>
         <input
+          id="audit-user-id-filter"
           aria-label="User ID filter"
           value={filters.userId}
           onChange={(event) => updateFilters({ userId: event.target.value })}
           placeholder="Filter by userId"
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm md:col-span-2"
         />
+        <label htmlFor="audit-action-filter" className="sr-only">
+          Action filter
+        </label>
         <select
+          id="audit-action-filter"
           aria-label="Action filter"
           value={filters.action}
           onChange={(event) =>
@@ -94,14 +102,22 @@ export function AuditPageClient() {
           <option value="ROLE_UPDATED">ROLE_UPDATED</option>
           <option value="LOGIN">LOGIN</option>
         </select>
+        <label htmlFor="audit-from-date" className="sr-only">
+          From date
+        </label>
         <input
+          id="audit-from-date"
           aria-label="From date"
           type="date"
           value={filters.from}
           onChange={(event) => updateFilters({ from: event.target.value })}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
         />
+        <label htmlFor="audit-to-date" className="sr-only">
+          To date
+        </label>
         <input
+          id="audit-to-date"
           aria-label="To date"
           type="date"
           value={filters.to}
@@ -135,9 +151,10 @@ export function AuditPageClient() {
         <div className="text-sm text-red-600">Failed to load audit events.</div>
       ) : null}
 
-      <div className="space-y-2">
+      <div className="space-y-2" aria-live="polite">
         {events.map((event) => {
           const isExpanded = Boolean(expanded[event.id]);
+          const detailsId = `audit-details-${event.id}`;
           return (
             <article
               key={event.id}
@@ -147,11 +164,13 @@ export function AuditPageClient() {
                 <div>
                   <p className="text-sm font-medium">{event.action}</p>
                   <p className="text-xs text-zinc-500">
-                    {new Date(event.timestamp).toLocaleString()} • {event.userId}
+                    {new Date(event.timestamp).toLocaleString()} | {event.userId}
                   </p>
                 </div>
                 <button
                   type="button"
+                  aria-expanded={isExpanded}
+                  aria-controls={detailsId}
                   className="rounded-md border border-zinc-300 px-2 py-1 text-xs hover:bg-zinc-100"
                   onClick={() =>
                     setExpanded((prev) => ({
@@ -165,7 +184,10 @@ export function AuditPageClient() {
               </div>
               <p className="mt-2 text-sm text-zinc-700">{event.message}</p>
               {isExpanded ? (
-                <pre className="mt-2 overflow-auto rounded-md bg-zinc-100 p-2 text-xs">
+                <pre
+                  id={detailsId}
+                  className="mt-2 overflow-auto rounded-md bg-zinc-100 p-2 text-xs"
+                >
                   {JSON.stringify(event.details, null, 2)}
                 </pre>
               ) : null}
@@ -174,7 +196,7 @@ export function AuditPageClient() {
         })}
       </div>
 
-      <div ref={loadMoreRef} />
+      <div ref={loadMoreRef} aria-hidden />
       {auditQuery.isFetchingNextPage ? (
         <p className="text-sm text-zinc-500">Loading more...</p>
       ) : null}

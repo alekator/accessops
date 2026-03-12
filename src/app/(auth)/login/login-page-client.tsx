@@ -38,7 +38,10 @@ export function LoginPageClient() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
+    <main
+      id="main-content"
+      className="flex min-h-screen items-center justify-center bg-zinc-50 px-4"
+    >
       <section className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <h1 className="text-2xl font-semibold text-zinc-900">AccessOps Login</h1>
         <p className="mt-2 text-sm text-zinc-600">Use one of demo accounts to continue.</p>
@@ -96,6 +99,6 @@ export function LoginPageClient() {
           </ul>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

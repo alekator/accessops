@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
+    "e2e:a11y": "playwright test tests/e2e/a11y-smoke.spec.ts",
     "e2e:ui": "playwright test --ui",
     "check:bundle": "node scripts/check-bundle-budget.mjs",
     "prepare": "husky"
