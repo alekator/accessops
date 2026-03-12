@@ -23,8 +23,10 @@ test('manager sees roles page in read-only mode', async ({ page }) => {
   await page.goto('/roles');
 
   await expect(page).toHaveURL(/\/roles/);
-  await expect(page.getByText('Read-only access: Manager can inspect policies')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Save policy' })).toBeDisabled();
+  await expect(
+    page.getByText('Read-only access: Manager can inspect policies and revision history'),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Propose revision' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Toggle all' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Export JSON' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Apply import to draft' })).toBeDisabled();

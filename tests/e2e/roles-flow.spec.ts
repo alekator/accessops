@@ -8,7 +8,7 @@ async function loginAsAdmin(page: import('@playwright/test').Page) {
   await expect(page).toHaveURL(/\/users/);
 }
 
-test('admin can change permissions and save role policy', async ({ page }) => {
+test('admin can propose and approve policy revision', async ({ page }) => {
   await loginAsAdmin(page);
 
   await page.goto('/roles');
@@ -17,12 +17,14 @@ test('admin can change permissions and save role policy', async ({ page }) => {
   await page.getByRole('button', { name: 'Toggle all' }).click();
   await expect(page.getByText('No unsaved permission changes.')).not.toBeVisible();
 
-  await page.getByRole('button', { name: 'Save policy' }).click();
+  await page.getByRole('button', { name: 'Propose revision' }).click();
+  await expect(page.getByText('Open proposed revision')).toBeVisible();
+  await page.getByRole('button', { name: 'Approve revision' }).click();
+  await expect(page.getByText('No proposed revision for this role.')).toBeVisible();
   await expect(page.getByText('No unsaved permission changes.')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Save policy' })).toBeDisabled();
 });
 
-test('admin can import json policy and persist it', async ({ page }) => {
+test('admin can import policy into draft and approve revision', async ({ page }) => {
   await loginAsAdmin(page);
 
   await page.goto('/roles');
@@ -40,6 +42,7 @@ test('admin can import json policy and persist it', async ({ page }) => {
 
   await expect(page.getByText('Enabled: 7/20')).toBeVisible();
   await expect(page.getByText('No unsaved permission changes.')).not.toBeVisible();
-  await page.getByRole('button', { name: 'Save policy' }).click();
+  await page.getByRole('button', { name: 'Propose revision' }).click();
+  await page.getByRole('button', { name: 'Approve revision' }).click();
   await expect(page.getByText('No unsaved permission changes.')).toBeVisible();
 });
