@@ -7,149 +7,137 @@
 ![MSW](https://img.shields.io/badge/MSW-Mocked%20API-f97316?style=for-the-badge)
 ![Playwright](https://img.shields.io/badge/Playwright-E2E-15803d?style=for-the-badge&logo=playwright)
 
-Production-grade admin dashboard built with Next.js, React, and TypeScript. The project simulates a real enterprise access-management system: authentication, RBAC, complex CRUD flows, permission matrix editing, audit visibility, real-time updates, and resilience UX.
+Production-grade admin dashboard that models real access-management workflows: authentication, RBAC, policy revisions, auditability, operational tables, resilience, and observability.
 
-This is a frontend-first portfolio case. REST endpoints and real-time events are mocked with MSW and an in-browser event bus, so the product behaves like a full system without requiring a backend service.
+## Table of Contents
 
-## Project Scope
+- [Why This Project Exists](#why-this-project-exists)
+- [Scope](#scope)
+- [Runtime Modes](#runtime-modes)
+- [Core Workflows](#core-workflows)
+  - [Authentication and RBAC](#authentication-and-rbac)
+  - [Users Operations](#users-operations)
+  - [Roles and Policy Revisions](#roles-and-policy-revisions)
+  - [Audit and Visibility](#audit-and-visibility)
+  - [Resilience and Observability](#resilience-and-observability)
+- [UI State Coverage](#ui-state-coverage)
+- [Architecture](#architecture)
+- [Test Strategy](#test-strategy)
+- [Local Setup](#local-setup)
+- [Quality Gates](#quality-gates)
+- [CI Pipeline](#ci-pipeline)
+- [Product and Engineering Trade-offs](#product-and-engineering-trade-offs)
+- [Documentation Index](#documentation-index)
+- [5-Minute Demo Script](#5-minute-demo-script)
+- [Future Improvements](#future-improvements)
 
-This project models an access-management dashboard with the workflows typically found in internal enterprise systems.
+## Why This Project Exists
 
-It focuses on:
+Most dashboard demos prove component styling.  
+This project is built to prove product and engineering depth in enterprise admin scenarios:
 
-- authenticated access with role-aware routing
-- operational data tables with filtering, sorting, pagination, and URL state
-- form-heavy CRUD flows with validation and optimistic updates
-- permission management through a matrix-based policy editor
-- audit visibility with searchable event history
-- resilience patterns such as retry handling, offline feedback, and error boundaries
+- authorization domain modeling, not only route guards
+- workflow realism (policy revision lifecycle, rollback, audit trail)
+- robustness under operational edge cases (offline, retries, invalid payloads, partial failures)
+- quality discipline (unit + e2e + a11y smoke + CI + bundle budget)
 
-The application is frontend-first: backend behavior is simulated with MSW and in-memory mock data so the full flow can be demonstrated locally.
+## Scope
 
-## Implemented Areas
+AccessOps simulates an internal access-management platform with:
 
-- Authentication, session handling, and protected routes
-- RBAC behavior for `Admin`, `Manager`, and `Viewer`
-- Users module with search, filters, sorting, pagination, date range, and bulk actions
-- User details and edit flow with dynamic validation and async checks
-- Roles permission matrix with diff tracking and JSON import/export
-- Audit log with infinite loading, filters, expandable payload details, and CSV export
-- Real-time event simulation with cache invalidation
-- Offline banner, connectivity notifications, and dashboard error boundary
-- Unit tests, Playwright e2e coverage, CI pipeline, and bundle budget checks
+- protected access and role-aware behavior
+- users operations with filters, sorting, pagination, bulk actions
+- form-heavy edit flows with validation and optimistic updates
+- role policy editing through a permission matrix
+- policy revision workflow: propose, approve/reject, rollback
+- searchable audit feed with export
+- diagnostics-first frontend observability
 
-## Screenshots
+## Runtime Modes
 
-### Login
+The app supports two runtime API modes:
 
-Clean entry point with demo accounts and protected-route redirect flow.
+- `mock` (default): MSW + in-memory fixtures
+- `api`: calls real API origin while preserving the same frontend contracts
 
-![Login screen](./docs/screenshots/login.png)
+Configure via `.env.local`:
 
-### Users Dashboard
+```bash
+# default is mock
+NEXT_PUBLIC_API_MODE=mock
 
-Main operational screen: search, filters, sorting, pagination, date range, row selection, and bulk actions.
+# used only when NEXT_PUBLIC_API_MODE=api
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+```
 
-![Users dashboard](./docs/screenshots/users-dashboard.png)
-
-### User Edit Form
-
-Form-heavy workflow with dynamic validation, async email uniqueness checks, and unsaved-changes protection.
-
-![User edit form](./docs/screenshots/user-edit-form.png)
-
-### Roles Matrix
-
-The strongest showcase screen: permission matrix editing, change diffing, import/export, and effective permission summary.
-
-![Roles matrix](./docs/screenshots/Roles-Matrix.png)
-
-### Roles Read-Only State
-
-Demonstrates RBAC depth: `Manager` can inspect the policy but cannot modify or save it.
-
-![Roles read only](./docs/screenshots/Read-only-Roles.png)
-
-### Audit Log
-
-Infinite event feed with filters, expandable JSON details, and CSV export.
-
-![Audit log](./docs/screenshots/Audit-Log.png)
-
-## Feature Set
+## Core Workflows
 
 ### Authentication and RBAC
 
-- Mock login with three demo roles: `Admin`, `Manager`, `Viewer`
-- Route protection through middleware and client-side guards
-- Role-aware UI behavior:
-  - `Admin` can edit and save policies
-  - `Manager` has explicit read-only access on protected workflows
-  - `Viewer` is blocked from restricted routes
-- Fast role switching for demo and QA scenarios
+- demo login for `Admin`, `Manager`, `Viewer`
+- middleware + client-side route access logic
+- role-aware behavior:
+  - `Admin`: full policy actions
+  - `Manager`: read-only policy access
+  - `Viewer`: restricted from protected management routes
 
-### Users Module
+### Users Operations
 
-- Server-like users table powered by TanStack Query
-- Search, filters, sorting, pagination, and created-at range filtering
-- URL-synced table state for shareable/reload-safe views
-- Row selection with bulk suspend / bulk activate actions
-- User details page
-- Edit flow with React Hook Form + Zod
-- Dynamic validation (for example, suspension reason becomes required when user is suspended)
-- Async email uniqueness check
-- Optimistic cache updates with rollback on failure
+- query-driven users table with URL-synced state
+- search, role/status/date filters, sorting, pagination
+- bulk suspend/activate
+- user details and edit flow
+- schema validation + async uniqueness checks
+- optimistic updates + rollback on failure
 
-### Roles and Permissions
+### Roles and Policy Revisions
 
-- Permission matrix with cell, row, column, and global toggles
-- Draft vs saved state diff tracking
-- Policy revision workflow (propose, approve/reject, rollback)
-- JSON import / export for policy workflows
-- Effective permission summary for the selected role
-- Locked UX for read-only roles
+- permission matrix (cell/row/column/global toggles)
+- policy JSON import/export
+- diff between active and draft policy
+- revision lifecycle:
+  - propose revision
+  - approve/reject proposed revision
+  - rollback to historical revision
+- revision history with status and metadata
 
 ### Audit and Visibility
 
-- Infinite audit feed with `useInfiniteQuery`
-- Filters by user, action, and date range
-- Expandable JSON event payload details
-- Export loaded events to CSV
+- infinite audit feed (`useInfiniteQuery`)
+- filters by user/action/date range
+- expandable event details
+- CSV export of currently loaded events
 
-### Real-Time and Resilience UX
+### Resilience and Observability
 
-- Mock WebSocket-like event stream with manual trigger and auto events in dev
-- Query cache invalidation on relevant domain updates
-- Connectivity toasts and offline banner
-- Route-level dashboard error boundary
-- Retry policy for transient query failures
-- Dev diagnostics panel with categorized telemetry and request correlation IDs
+- offline/online feedback and retry policy
+- web vitals logging + performance budget warnings
+- categorized telemetry:
+  - `auth`, `permission`, `validation`, `network`, `backend`, `performance`
+- request correlation IDs (`x-correlation-id`)
+- dev diagnostics panel:
+  - live diagnostics stream
+  - category filter
+  - active runtime mode and network state
 
-## Tech Stack
+## UI State Coverage
 
-- Next.js 16 (App Router)
-- React 19
-- TypeScript (strict)
-- Tailwind CSS + shadcn/ui primitives
-- TanStack Query
-- React Hook Form + Zod
-- MSW for REST mocking
-- Custom in-browser event bus for real-time simulation
-- Vitest + Testing Library
-- Playwright E2E
-- ESLint + Prettier + Husky + lint-staged
-- GitHub Actions CI
+Storybook-equivalent visual state catalog:
+
+- `/roles?view=states`
+
+Covered states include empty/loading/error/read-only/offline/revision/destructive confirmation.
 
 ## Architecture
 
 ```text
 src/
-  app/                  # app router routes, layouts, route wrappers
-  entities/             # domain schemas, entity API contracts
+  app/                  # routes, layouts, providers
+  entities/             # domain schemas + API contracts
     user/
     role/
     audit/
-  features/             # business features built on entities
+  features/             # business capabilities
     auth/
     users/
     roles/
@@ -157,24 +145,32 @@ src/
     realtime/
     connectivity/
     observability/
-  widgets/              # dashboard shell and composed UI blocks
-  shared/               # api client, hooks, utilities, common types
-  mocks/                # fixtures, handlers, in-memory db, ws event bus
+  widgets/              # composed page-level UI
+  shared/               # api client, hooks, utilities, config
+  mocks/                # handlers, fixtures, in-memory db, ws bus
 tests/
   e2e/
 ```
 
-### Frontend Flow
-
 ```mermaid
 flowchart LR
     UI[App Router Pages] --> F[Feature Layer]
-    F --> E[Entity API + Schemas]
+    F --> E[Entity Schemas + API Contracts]
     E --> Q[TanStack Query Cache]
-    Q --> M[MSW /api/v1 Handlers]
-    M --> DB[In-memory Mock DB]
+    Q --> API[API Client]
+    API --> M[MSW /api/v1 in mock mode]
+    M --> DB[In-memory DB]
     WS[Mock Event Bus] --> F
 ```
+
+## Test Strategy
+
+| Layer                               | Focus                          | Examples                                                           |
+| ----------------------------------- | ------------------------------ | ------------------------------------------------------------------ |
+| Unit (Vitest)                       | Domain correctness             | RBAC rules, policy matrix utils, query param mapping, retry policy |
+| Integration-like (mock db/handlers) | Workflow logic in mock backend | role revision propose/approve/reject/rollback                      |
+| E2E (Playwright)                    | User-visible behavior          | auth/users/roles/audit flows, diagnostics panel, UI states         |
+| A11y smoke (Playwright)             | Keyboard + semantics baseline  | landmarks, labels, expanded states, table naming                   |
 
 ## Local Setup
 
@@ -183,26 +179,9 @@ pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:3000`
+Open `http://localhost:3000`.
 
-### Runtime Modes
-
-The app now supports two runtime API modes via environment variables:
-
-- `mock` mode (default): MSW handlers + in-memory fixtures
-- `api` mode: requests go directly to configured API base URL
-
-Create `.env.local` for explicit mode selection:
-
-```bash
-# default is mock if not set
-NEXT_PUBLIC_API_MODE=mock
-
-# only used in api mode, example:
-# NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-```
-
-### Demo Accounts
+Demo accounts:
 
 - `admin@accessops.dev / demo123`
 - `manager@accessops.dev / demo123`
@@ -214,70 +193,37 @@ NEXT_PUBLIC_API_MODE=mock
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm e2e:a11y
 pnpm e2e
 pnpm build
 pnpm check:bundle
 ```
 
-What is covered:
+Bundle budgets:
 
-- unit tests for business logic and query-state serialization
-- e2e tests for auth, users flows, RBAC negative cases, and roles import/save flows
-- production build validation
-- bundle-size budget check in CI
+- total JS chunks: `<= 1500 KB`
+- largest JS chunk: `<= 350 KB`
 
-## Mocking Model
+## CI Pipeline
 
-- All REST endpoints are versioned under `/api/v1/*`
-- Runtime mode switch:
-  - `NEXT_PUBLIC_API_MODE=mock` starts MSW in development
-  - `NEXT_PUBLIC_API_MODE=api` disables MSW and uses real API origin
-- MSW simulates backend behavior for users, roles, audit, and validation endpoints
-- Mock data is deterministic and stored in in-memory fixtures
-- Real-time updates are simulated client-side through an event bus
-- The dashboard header includes a `Simulate event` action for demoing live updates on demand
-
-This keeps the project fully portable while still demonstrating realistic frontend architecture and state behavior.
-
-## UI State Catalog
-
-Storybook-equivalent visual state coverage is available at:
-
-- `/roles?view=states`
-
-It includes canonical admin states (empty/loading/error/read-only/offline/revision flows) and is covered by e2e smoke checks.
-
-## 5-Minute Recruiter Demo
-
-1. Sign in as `admin@accessops.dev`.
-2. Open `Users` and apply search, filters, sorting, and date range.
-3. Select multiple rows and run a bulk status action.
-4. Open a user edit page, trigger validation, save changes, and observe the optimistic UX.
-5. Open `Roles`, change matrix values, inspect the diff, import JSON, and save.
-6. Switch to `Manager` and show the read-only locked state.
-7. Open `Audit`, expand event details, and export CSV.
-8. Trigger `Simulate event` and show the refresh/toast behavior.
-
-## CI and Developer Workflow
-
-GitHub Actions pipeline runs:
+GitHub Actions runs:
 
 - lint
 - typecheck
 - unit tests
-- Next.js production build
+- production build
 - bundle budget check
-- Playwright e2e suite
+- a11y smoke e2e
+- full e2e suite
 
-Local developer workflow also includes:
+## Product and Engineering Trade-offs
 
-- `husky` pre-commit hook
-- `lint-staged` for staged file quality checks
-- conventional commit-friendly release notes via [`CHANGELOG.md`](./CHANGELOG.md)
+- No real backend included in this repository by default; `api` mode is ready for integration.
+- Table virtualization is intentionally postponed for current data scale.
+- Diagnostics panel is development-only by design.
+- Auth/session is demo-oriented in mock mode; production requires server authority and secure session handling.
 
-## Production-Readiness Notes
-
-Detailed supporting docs:
+## Documentation Index
 
 - [Authorization Model](./docs/AUTHORIZATION_MODEL.md)
 - [Accessibility](./docs/ACCESSIBILITY.md)
@@ -286,3 +232,21 @@ Detailed supporting docs:
 - [Performance Budget](./docs/PERFORMANCE_BUDGET.md)
 - [Security Notes](./docs/SECURITY_NOTES.md)
 - [Release Process](./docs/RELEASE_PROCESS.md)
+
+## 5-Minute Demo Script
+
+1. Sign in as `admin@accessops.dev`.
+2. Open `Users`; apply filters/sorting/pagination and execute a bulk action.
+3. Edit a user and verify optimistic UX.
+4. Open `Roles`; update matrix draft, propose revision, approve it.
+5. Open revision history and perform rollback.
+6. Switch to `Manager`; demonstrate locked read-only controls.
+7. Open `Audit`; filter events, expand details, export CSV.
+8. Open diagnostics panel and show categorized telemetry + network/runtime info.
+
+## Future Improvements
+
+- Add backend reference implementation (SQLite/PostgreSQL) for full `api` mode demo.
+- Introduce policy templates and import preview/dry-run validation.
+- Add visual regression snapshots for key admin flows.
+- Add trendable performance snapshots across CI runs.
