@@ -29,6 +29,7 @@ Open `http://localhost:3000` and sign in with:
   - [Roles and Policy Revisions](#roles-and-policy-revisions)
   - [Audit and Visibility](#audit-and-visibility)
   - [Resilience and Observability](#resilience-and-observability)
+- [Tech Stack](#tech-stack)
 - [Runtime Modes (Mock and API)](#runtime-modes-mock-and-api)
 - [UI State Catalog (Storybook-equivalent)](#ui-state-catalog-storybook-equivalent)
 - [Architecture](#architecture)
@@ -113,6 +114,20 @@ Open `http://localhost:3000` and sign in with:
 - Categorized telemetry (`auth`, `permission`, `validation`, `network`, `backend`, `performance`)
 - Correlation IDs on API requests (`x-correlation-id`)
 - Development diagnostics panel with live event stream and filters
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript 5 (strict)
+- TanStack Query v5
+- Tailwind CSS 4 + `tw-animate-css`
+- Zod + React Hook Form
+- MSW (mock API mode)
+- Playwright (e2e + a11y smoke)
+- Vitest + Testing Library
+- ESLint + Prettier + Husky + lint-staged
+- GitHub Actions CI
 
 ## Runtime Modes (Mock and API)
 
