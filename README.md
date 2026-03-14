@@ -22,9 +22,7 @@ Open `http://localhost:3000` and sign in with:
 
 ## Table of Contents
 
-- [Why This Repo Is Strong](#why-this-repo-is-strong)
 - [Screenshots](#screenshots)
-- [What Problem It Solves](#what-problem-it-solves)
 - [Feature Highlights](#feature-highlights)
   - [Authentication and RBAC](#authentication-and-rbac)
   - [Users Operations](#users-operations)
@@ -42,15 +40,6 @@ Open `http://localhost:3000` and sign in with:
 - [Documentation Index](#documentation-index)
 - [5-Minute Demo Script](#5-minute-demo-script)
 - [Future Improvements](#future-improvements)
-
-## Why This Repo Is Strong
-
-This project is not a “pretty dashboard shell”. It demonstrates:
-
-- **Product realism**: real admin flows, not isolated UI widgets
-- **Domain depth**: authorization model + policy revision lifecycle
-- **Reliability mindset**: retries, offline handling, typed API contracts, diagnostics
-- **Delivery discipline**: unit/e2e/a11y smoke tests, CI gates, bundle budgets
 
 ## Screenshots
 
@@ -77,18 +66,6 @@ This project is not a “pretty dashboard shell”. It demonstrates:
 ### Audit Log
 
 ![Audit log](./docs/screenshots/Audit-Log.png)
-
-## What Problem It Solves
-
-Internal systems that manage access rights must handle:
-
-- strict route and action permissions
-- high-volume operational tables
-- safe policy changes with revision control
-- clear audit trails
-- diagnostics for failures in real usage
-
-AccessOps models exactly these workflows in a frontend-first architecture.
 
 ## Feature Highlights
 
