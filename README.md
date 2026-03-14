@@ -7,126 +7,157 @@
 ![MSW](https://img.shields.io/badge/MSW-Mocked%20API-f97316?style=for-the-badge)
 ![Playwright](https://img.shields.io/badge/Playwright-E2E-15803d?style=for-the-badge&logo=playwright)
 
-Production-grade admin dashboard that models real access-management workflows: authentication, RBAC, policy revisions, auditability, operational tables, resilience, and observability.
+Enterprise-style admin dashboard focused on **access management workflows**: auth, RBAC, policy revisions, auditability, resilience UX, and engineering quality gates.
+
+## Quick Start
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Open `http://localhost:3000` and sign in with:
+
+- `admin@accessops.dev / demo123`
 
 ## Table of Contents
 
-- [Why This Project Exists](#why-this-project-exists)
-- [Scope](#scope)
-- [Runtime Modes](#runtime-modes)
-- [Core Workflows](#core-workflows)
+- [Why This Repo Is Strong](#why-this-repo-is-strong)
+- [Screenshots](#screenshots)
+- [What Problem It Solves](#what-problem-it-solves)
+- [Feature Highlights](#feature-highlights)
   - [Authentication and RBAC](#authentication-and-rbac)
   - [Users Operations](#users-operations)
   - [Roles and Policy Revisions](#roles-and-policy-revisions)
   - [Audit and Visibility](#audit-and-visibility)
   - [Resilience and Observability](#resilience-and-observability)
-- [UI State Coverage](#ui-state-coverage)
+- [Runtime Modes (Mock and API)](#runtime-modes-mock-and-api)
+- [UI State Catalog (Storybook-equivalent)](#ui-state-catalog-storybook-equivalent)
 - [Architecture](#architecture)
-- [Test Strategy](#test-strategy)
+- [Testing Strategy](#testing-strategy)
 - [Local Setup](#local-setup)
 - [Quality Gates](#quality-gates)
 - [CI Pipeline](#ci-pipeline)
-- [Product and Engineering Trade-offs](#product-and-engineering-trade-offs)
+- [Trade-offs](#trade-offs)
 - [Documentation Index](#documentation-index)
 - [5-Minute Demo Script](#5-minute-demo-script)
 - [Future Improvements](#future-improvements)
 
-## Why This Project Exists
+## Why This Repo Is Strong
 
-Most dashboard demos prove component styling.  
-This project is built to prove product and engineering depth in enterprise admin scenarios:
+This project is not a “pretty dashboard shell”. It demonstrates:
 
-- authorization domain modeling, not only route guards
-- workflow realism (policy revision lifecycle, rollback, audit trail)
-- robustness under operational edge cases (offline, retries, invalid payloads, partial failures)
-- quality discipline (unit + e2e + a11y smoke + CI + bundle budget)
+- **Product realism**: real admin flows, not isolated UI widgets
+- **Domain depth**: authorization model + policy revision lifecycle
+- **Reliability mindset**: retries, offline handling, typed API contracts, diagnostics
+- **Delivery discipline**: unit/e2e/a11y smoke tests, CI gates, bundle budgets
 
-## Scope
+## Screenshots
 
-AccessOps simulates an internal access-management platform with:
+### Login
 
-- protected access and role-aware behavior
-- users operations with filters, sorting, pagination, bulk actions
-- form-heavy edit flows with validation and optimistic updates
-- role policy editing through a permission matrix
-- policy revision workflow: propose, approve/reject, rollback
-- searchable audit feed with export
-- diagnostics-first frontend observability
+![Login](./docs/screenshots/login.png)
 
-## Runtime Modes
+### Users Dashboard
 
-The app supports two runtime API modes:
+![Users dashboard](./docs/screenshots/users-dashboard.png)
 
-- `mock` (default): MSW + in-memory fixtures
-- `api`: calls real API origin while preserving the same frontend contracts
+### User Edit Form
 
-Configure via `.env.local`:
+![User edit](./docs/screenshots/user-edit-form.png)
 
-```bash
-# default is mock
-NEXT_PUBLIC_API_MODE=mock
+### Roles Matrix
 
-# used only when NEXT_PUBLIC_API_MODE=api
-# NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
-```
+![Roles matrix](./docs/screenshots/Roles-Matrix.png)
 
-## Core Workflows
+### Roles Read-only State
+
+![Roles read-only](./docs/screenshots/Read-only-Roles.png)
+
+### Audit Log
+
+![Audit log](./docs/screenshots/Audit-Log.png)
+
+## What Problem It Solves
+
+Internal systems that manage access rights must handle:
+
+- strict route and action permissions
+- high-volume operational tables
+- safe policy changes with revision control
+- clear audit trails
+- diagnostics for failures in real usage
+
+AccessOps models exactly these workflows in a frontend-first architecture.
+
+## Feature Highlights
 
 ### Authentication and RBAC
 
-- demo login for `Admin`, `Manager`, `Viewer`
-- middleware + client-side route access logic
-- role-aware behavior:
+- Demo auth for `Admin`, `Manager`, `Viewer`
+- Protected routes via middleware + client guards
+- Role-aware behavior:
   - `Admin`: full policy actions
   - `Manager`: read-only policy access
-  - `Viewer`: restricted from protected management routes
+  - `Viewer`: blocked from protected management flows
 
 ### Users Operations
 
-- query-driven users table with URL-synced state
-- search, role/status/date filters, sorting, pagination
-- bulk suspend/activate
-- user details and edit flow
-- schema validation + async uniqueness checks
-- optimistic updates + rollback on failure
+- Query-driven table with URL-synced state
+- Search, role/status/date filters, sorting, pagination
+- Bulk suspend/activate
+- User details and edit flow
+- Schema validation + async email uniqueness check
+- Optimistic update UX with rollback support
 
 ### Roles and Policy Revisions
 
-- permission matrix (cell/row/column/global toggles)
-- policy JSON import/export
-- diff between active and draft policy
-- revision lifecycle:
+- Permission matrix (cell/row/column/global toggles)
+- JSON import/export
+- Draft vs active diff
+- Revision lifecycle:
   - propose revision
-  - approve/reject proposed revision
+  - approve or reject proposed revision
   - rollback to historical revision
-- revision history with status and metadata
+- Revision history with statuses and metadata
 
 ### Audit and Visibility
 
-- infinite audit feed (`useInfiniteQuery`)
-- filters by user/action/date range
-- expandable event details
-- CSV export of currently loaded events
+- Infinite audit feed (`useInfiniteQuery`)
+- User/action/date filters
+- Expandable JSON details
+- CSV export of loaded events
 
 ### Resilience and Observability
 
-- offline/online feedback and retry policy
-- web vitals logging + performance budget warnings
-- categorized telemetry:
-  - `auth`, `permission`, `validation`, `network`, `backend`, `performance`
-- request correlation IDs (`x-correlation-id`)
-- dev diagnostics panel:
-  - live diagnostics stream
-  - category filter
-  - active runtime mode and network state
+- Retry policy and network-aware UX
+- Connectivity toasts + offline banner
+- Web Vitals and performance budget warnings
+- Categorized telemetry (`auth`, `permission`, `validation`, `network`, `backend`, `performance`)
+- Correlation IDs on API requests (`x-correlation-id`)
+- Development diagnostics panel with live event stream and filters
 
-## UI State Coverage
+## Runtime Modes (Mock and API)
 
-Storybook-equivalent visual state catalog:
+Two runtime API modes:
+
+- `mock` (default): MSW + in-memory fixtures
+- `api`: calls real API origin with same frontend contracts
+
+`.env.local` example:
+
+```bash
+NEXT_PUBLIC_API_MODE=mock
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
+```
+
+## UI State Catalog (Storybook-equivalent)
+
+Visual state catalog is available at:
 
 - `/roles?view=states`
 
-Covered states include empty/loading/error/read-only/offline/revision/destructive confirmation.
+It documents canonical admin states: empty/loading/error/read-only/offline/revision/destructive confirmation and is covered by Playwright smoke checks.
 
 ## Architecture
 
@@ -163,14 +194,14 @@ flowchart LR
     WS[Mock Event Bus] --> F
 ```
 
-## Test Strategy
+## Testing Strategy
 
-| Layer                               | Focus                          | Examples                                                           |
-| ----------------------------------- | ------------------------------ | ------------------------------------------------------------------ |
-| Unit (Vitest)                       | Domain correctness             | RBAC rules, policy matrix utils, query param mapping, retry policy |
-| Integration-like (mock db/handlers) | Workflow logic in mock backend | role revision propose/approve/reject/rollback                      |
-| E2E (Playwright)                    | User-visible behavior          | auth/users/roles/audit flows, diagnostics panel, UI states         |
-| A11y smoke (Playwright)             | Keyboard + semantics baseline  | landmarks, labels, expanded states, table naming                   |
+| Layer                               | Goal                   | Examples                                                    |
+| ----------------------------------- | ---------------------- | ----------------------------------------------------------- |
+| Unit (Vitest)                       | Domain correctness     | RBAC, matrix utils, query param serialization, retry policy |
+| Integration-like (mock db/handlers) | Workflow invariants    | policy revision propose/approve/reject/rollback             |
+| E2E (Playwright)                    | User-visible behavior  | auth/users/roles/audit/diagnostics/ui-state flows           |
+| A11y smoke (Playwright)             | Accessibility baseline | landmarks, labels, keyboard flow, expanded states           |
 
 ## Local Setup
 
@@ -181,7 +212,7 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
-Demo accounts:
+Demo users:
 
 - `admin@accessops.dev / demo123`
 - `manager@accessops.dev / demo123`
@@ -202,7 +233,7 @@ pnpm check:bundle
 Bundle budgets:
 
 - total JS chunks: `<= 1500 KB`
-- largest JS chunk: `<= 350 KB`
+- largest chunk: `<= 350 KB`
 
 ## CI Pipeline
 
@@ -213,15 +244,15 @@ GitHub Actions runs:
 - unit tests
 - production build
 - bundle budget check
-- a11y smoke e2e
-- full e2e suite
+- a11y smoke checks
+- full Playwright e2e suite
 
-## Product and Engineering Trade-offs
+## Trade-offs
 
-- No real backend included in this repository by default; `api` mode is ready for integration.
-- Table virtualization is intentionally postponed for current data scale.
-- Diagnostics panel is development-only by design.
-- Auth/session is demo-oriented in mock mode; production requires server authority and secure session handling.
+- No bundled real backend implementation yet; `api` mode is integration-ready.
+- Table virtualization is deferred for current demo-scale data volume.
+- Diagnostics panel is intentionally dev-only.
+- Auth/session in mock mode is demo-oriented; production needs server authority.
 
 ## Documentation Index
 
@@ -236,17 +267,17 @@ GitHub Actions runs:
 ## 5-Minute Demo Script
 
 1. Sign in as `admin@accessops.dev`.
-2. Open `Users`; apply filters/sorting/pagination and execute a bulk action.
-3. Edit a user and verify optimistic UX.
-4. Open `Roles`; update matrix draft, propose revision, approve it.
-5. Open revision history and perform rollback.
-6. Switch to `Manager`; demonstrate locked read-only controls.
-7. Open `Audit`; filter events, expand details, export CSV.
-8. Open diagnostics panel and show categorized telemetry + network/runtime info.
+2. Open `Users`; apply filters/sorting/pagination and execute bulk action.
+3. Edit a user and show optimistic update behavior.
+4. Open `Roles`; change draft policy, propose revision, approve revision.
+5. Show revision history and rollback.
+6. Switch to `Manager` and demonstrate read-only lock.
+7. Open `Audit`; filter, expand details, export CSV.
+8. Open diagnostics panel and show telemetry categories + network/runtime info.
 
 ## Future Improvements
 
 - Add backend reference implementation (SQLite/PostgreSQL) for full `api` mode demo.
-- Introduce policy templates and import preview/dry-run validation.
-- Add visual regression snapshots for key admin flows.
-- Add trendable performance snapshots across CI runs.
+- Add policy templates and import preview/dry-run validation.
+- Add visual regression snapshots for critical admin screens.
+- Add historical performance snapshots in CI.
